@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  webapp:
+    container_name: ServiceApi
+    image: ${DOCKER_REGISTRY-}serviceapi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5050:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - APPOPTICS_SERVICE_KEY=IXDxTzxXVf7JwLaYVv1wWyPOtgkO9DaOBh4joGdYtrIRE1wwyvkpv0HZmHxWzYK12yKpvQE:boss-service-name-local
+    depends_on:
+      - seq
+
+  seq:
+    container_name: service-seq
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:80

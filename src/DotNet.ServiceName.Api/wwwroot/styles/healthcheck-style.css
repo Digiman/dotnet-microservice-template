@@ -1,0 +1,17 @@
+﻿:root {
+    --primaryColor: #4f4f4f;
+    --secondaryColor: #f4f4f4;
+    --bgMenuActive: #debc00;
+    --bgButton: #debc00;
+    --logoImageUrl: url('/../images/logo.svg');
+    --bgAside: var(--primaryColor);
+}
+
+.hc-aside__logo {
+    border-radius: 5px;
+    height: 4rem;
+}
+
+.hc-aside.is-open .hc-aside__logo {
+    height: 6rem;
+}
