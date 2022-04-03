@@ -20,12 +20,13 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions
                 // add Health Check UI
                 endpoints.MapHealthChecksUI(config =>
                 {
-                    config.AddCustomStylesheet("wwwroot/styles/healthcheck-style.css");
+                    // TODO: add here custom styles and logic for Health Check dashboard if needed
+                    // config.AddCustomStylesheet("wwwroot/styles/healthcheck-style.css");
                     config.UIPath = "/healthcheck-dashboard";
                 });
             }
 
-            // add HealthCheck simple endpoint - only 
+            // add HealthCheck simple endpoint - only
             endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions
             {
                 Predicate = (check) => check.Tags.Contains("ready")

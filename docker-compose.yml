@@ -11,7 +11,6 @@ services:
       - 5050:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
-      - APPOPTICS_SERVICE_KEY=IXDxTzxXVf7JwLaYVv1wWyPOtgkO9DaOBh4joGdYtrIRE1wwyvkpv0HZmHxWzYK12yKpvQE:boss-service-name-local
     depends_on:
       - seq
 
