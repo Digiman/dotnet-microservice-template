@@ -22,8 +22,11 @@ namespace DotNet.ServiceName.Api
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
-                        .UseKestrel(server => server.AddServerHeader = false)
-                        .UseStartup<Startup>();
+                        .UseStartup<Startup>()
+                        .ConfigureKestrel(options =>
+                        {
+                            options.AddServerHeader = false;
+                        });
                 });
     }
 }
