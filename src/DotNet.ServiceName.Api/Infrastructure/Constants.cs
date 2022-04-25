@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DotNet.ServiceName.Api.Infrastructure
 {

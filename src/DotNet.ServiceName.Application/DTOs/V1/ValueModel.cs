@@ -1,4 +1,4 @@
-﻿namespace DotNet.ServiceName.Application.DTOs.V1
+namespace DotNet.ServiceName.Application.DTOs.V1
 {
     public sealed class ValueModel
     {

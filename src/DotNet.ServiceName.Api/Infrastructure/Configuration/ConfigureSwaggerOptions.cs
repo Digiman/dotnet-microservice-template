@@ -41,7 +41,7 @@ namespace DotNet.ServiceName.Api.Infrastructure.Configuration
         /// </summary>
         /// <param name="description">Api version description.</param>
         /// <returns>Returns API info object with data.</returns>
-        static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
+        private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
         {
             var info = new OpenApiInfo
             {

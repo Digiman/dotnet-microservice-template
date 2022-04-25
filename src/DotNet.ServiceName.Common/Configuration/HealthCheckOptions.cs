@@ -1,4 +1,4 @@
-﻿namespace DotNet.ServiceName.Common.Configuration
+namespace DotNet.ServiceName.Common.Configuration
 {
     /// <summary>
     /// Configuration for Health Checks and UI.

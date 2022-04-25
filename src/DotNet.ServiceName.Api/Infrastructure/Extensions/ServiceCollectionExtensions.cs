@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -182,7 +182,7 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions
             return services;
         }
 
-         /// <summary>
+        /// <summary>
         /// Configure settings to process errors inside the application and API in general to return ProblemDetail result.
         /// </summary>
         /// <param name="options">Options for ProblemDetails middleware.</param>

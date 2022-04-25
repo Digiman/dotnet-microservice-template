@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +16,7 @@ namespace DotNet.ServiceName.Common.Extensions
             dictionary[name + ".Scope"] = Guid.NewGuid();
             return logger.BeginScope(dictionary);
         }
-        
+
         public static IDisposable BeginPropertyScope(this ILogger logger,
             params ValueTuple<string, object>[] properties)
         {

@@ -30,8 +30,7 @@ namespace DotNet.ServiceName.Application.Services
                 var response = new StatusResponse
                 {
                     Created = DateTime.UtcNow,
-                    AppInfo = CollectApplicationInfo(),
-                    AmazonInfo = CollectAmazonInfo()
+                    AppInfo = CollectApplicationInfo()
                 };
 
                 return Task.FromResult(response);
@@ -50,7 +49,7 @@ namespace DotNet.ServiceName.Application.Services
         /// Collect application information.
         /// </summary>
         /// <returns>Returns application info.</returns>
-        private AppInfo CollectApplicationInfo()
+        private static AppInfo CollectApplicationInfo()
         {
             var assembly = Assembly.GetExecutingAssembly();
 
@@ -62,27 +61,6 @@ namespace DotNet.ServiceName.Application.Services
                 AppStartTime = System.Diagnostics.Process.GetCurrentProcess().StartTime.ToUniversalTime(),
                 Version = Assembly.GetEntryAssembly().GetName().Version.ToString()
             };
-        }
-
-        /// <summary>
-        /// Collect AWS related information about service instance.
-        /// </summary>
-        /// <returns>Returns Amazon AWS info.</returns>
-        private AmazonInfo CollectAmazonInfo()
-        {
-            if (!string.IsNullOrEmpty(Amazon.Util.EC2InstanceMetadata.InstanceId))
-            {
-                return new AmazonInfo
-                {
-                    Ec2InstanceId = Amazon.Util.EC2InstanceMetadata.InstanceId,
-                    Ec2AmiId = Amazon.Util.EC2InstanceMetadata.AmiId,
-                    InstanceType = Amazon.Util.EC2InstanceMetadata.InstanceType,
-                    Region = Amazon.Util.EC2InstanceMetadata.Region.DisplayName,
-                    AvailabilityZone = Amazon.Util.EC2InstanceMetadata.AvailabilityZone
-                };
-            }
-
-            return null;
         }
 
         #endregion

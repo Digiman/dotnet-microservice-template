@@ -1,4 +1,4 @@
-﻿using DotNet.ServiceName.Common.Configuration;
+using DotNet.ServiceName.Common.Configuration;
 using Microsoft.Extensions.Configuration;
 
 namespace DotNet.ServiceName.Common.Extensions

@@ -1,4 +1,4 @@
-﻿using DotNet.ServiceName.Api.Infrastructure.Helpers;
+using DotNet.ServiceName.Api.Infrastructure.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -87,20 +87,33 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions
         /// </remarks>
         public static IApplicationBuilder ConfigureSecurityHeaders(this IApplicationBuilder app)
         {
+            const int hstsMaxAgeInSeconds = 60 * 60 * 24 * 60; // 60 days in seconds
+
             var policyHeaders = new HeaderPolicyCollection()
                 .AddDefaultSecurityHeaders()
-                .AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: 60 * 60 * 24 * 60) // 60 days in seconds
+                .AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: hstsMaxAgeInSeconds)
                 .AddPermissionsPolicy(builder =>
                 {
                     builder.AddDefaultPermissionsPolicies();
                 })
-                .RemoveCustomHeader("X-Powered-By");
+                .RemoveCustomHeader("X-Powered-By");// 60 days in seconds
 
             app.UseSecurityHeaders(policyHeaders);
 
             return app;
         }
 
+        /// <summary>
+        /// Configure permissions policy HTTP header for the browser.
+        /// </summary>
+        /// <param name="builder">Permission policy builder.</param>
+        /// <remarks>
+        /// See more here:
+        /// 1. https://www.w3.org/TR/permissions-policy-1/
+        /// 2. https://github.com/w3c/webappsec-permissions-policy/blob/main/permissions-policy-explainer.md
+        /// 3. https://w3c.github.io/webappsec-permissions-policy/
+        /// 4. https://www.permissionspolicy.com/
+        /// </remarks>
         private static void AddDefaultPermissionsPolicies(this PermissionsPolicyBuilder builder)
         {
             builder.AddAccelerometer() // accelerometer 'none'

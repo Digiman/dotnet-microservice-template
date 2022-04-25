@@ -21,7 +21,6 @@ namespace DotNet.ServiceName.Application.Mapping
         {
             CreateMap<StatusResponse, StatusResponseDto>();
             CreateMap<AppInfo, AppInfoDto>();
-            CreateMap<AmazonInfo, AmazonInfoDto>();
         }
     }
 }

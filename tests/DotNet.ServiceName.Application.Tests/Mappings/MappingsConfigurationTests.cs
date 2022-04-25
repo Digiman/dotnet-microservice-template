@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DotNet.ServiceName.Application.Mapping;
 using NUnit.Framework;
 
