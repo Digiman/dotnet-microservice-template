@@ -7,9 +7,9 @@ using System.Text.RegularExpressions;
 using DotNet.ServiceName.Api.Infrastructure.Configuration;
 using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
 using DotNet.ServiceName.Api.Infrastructure.Swagger;
-using Hellang.Middleware.ProblemDetails;
 using DotNet.ServiceName.Application;
 using DotNet.ServiceName.Common.Extensions;
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +19,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using ProblemDetailsOptions = Hellang.Middleware.ProblemDetails.ProblemDetailsOptions;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Extensions
 {
