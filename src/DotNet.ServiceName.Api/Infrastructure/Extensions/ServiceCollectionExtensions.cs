@@ -45,7 +45,7 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions
             // TODO: add more configuration here!
 
             // add all DI modules
-            services.AddExternalServices();
+            services.AddExternalServices(configuration);
 
             //-----------------------------------------------
             // Web application specific
@@ -62,10 +62,10 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions
             return services;
         }
 
-        private static IServiceCollection AddExternalServices(this IServiceCollection services)
+        private static IServiceCollection AddExternalServices(this IServiceCollection services, IConfiguration configuration)
         {
             // TODO: register list of the dependencies here!
-            services.AddConfiguration();
+            services.AddConfiguration(configuration);
             services.AddApplication();
 
             return services;

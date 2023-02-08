@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DotNet.ServiceName.Common.Configuration
 {
     /// <summary>
@@ -5,7 +7,9 @@ namespace DotNet.ServiceName.Common.Configuration
     /// </summary>
     public sealed class HealthCheckOptions
     {
+        [Required]
         public bool HealthCheckUiEnabled { get; set; }
+        [Required]
         public string HeaderText { get; set; }
         public int EvaluationTimeInSeconds { get; set; }
         public int MaximumHistoryEntriesPerEndpoint { get; set; }
