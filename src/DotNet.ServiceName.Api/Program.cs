@@ -1,32 +1,83 @@
-using System.Threading.Tasks;
+using DotNet.ServiceName.Api.Infrastructure.Extensions;
+using DotNet.ServiceName.Common.Extensions;
+using Hellang.Middleware.ProblemDetails;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace DotNet.ServiceName.Api
-{
-    public static class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
-            await host.RunAsync();
-        }
+var builder = WebApplication.CreateBuilder();
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseSerilog((context, loggerConfiguration) =>
-                {
-                    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder
-                        .UseStartup<Startup>()
-                        .ConfigureKestrel(options =>
-                        {
-                            options.AddServerHeader = false;
-                        });
-                });
+// configure Serilog for logging
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+{
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
+
+// configure application services
+ConfigureServices();
+
+// create the app to configure the middleware
+var app = builder.Build();
+
+// configure the web app middleware components
+var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+ConfigureApplication(app, builder.Environment, apiVersionDescriptionProvider);
+
+// run the application
+await app.RunAsync();
+
+void ConfigureServices()
+{
+    builder.Services.ConfigureApiService(builder.Configuration, builder.Environment, true);
+}
+
+void ConfigureApplication(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiProvider)
+{
+    var healthCheckConfig = builder.Configuration.GetHealthCheckConfiguration();
+
+    // configure Forwarder headers for proxies and Load Balancers
+    app.ConfigureForwarderOptions();
+
+    if (!env.IsEnvironment("Local"))
+    {
+        // Use HSTS default settings (default for 30 days)
+        // app.UseHsts();
+
+        // custom configuration for security headers (HSTS for 60 days)
+        app.ConfigureSecurityHeaders();
     }
+
+    // redirect to the HTTPS connection
+    app.UseHttpsRedirection();
+
+    // Add using ProblemDetail middleware to handle errors and use RFC-7807 standard
+    app.UseProblemDetails();
+
+    // configure Swagger UI
+    app.ConfigureSwagger(apiProvider);
+
+    // add logger for all requests in the web server
+    app.ConfigureSerilog();
+
+    // use default files
+    app.UseDefaultFiles();
+
+    // allow to use static files
+    app.UseStaticFiles();
+
+    // Use routing middleware to handle requests to the controllers
+    app.UseRouting();
+
+    // configure endpoints routing
+    app.UseEndpoints(endpoints =>
+    {
+        // add controllers endpoints
+        endpoints.MapControllers();
+
+        // add health checks endpoints and configurations
+        endpoints.AddHealthcheckEndpoints(healthCheckConfig);
+    });
 }
