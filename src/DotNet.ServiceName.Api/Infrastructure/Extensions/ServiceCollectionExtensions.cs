@@ -66,6 +66,8 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions
         {
             // TODO: register list of the dependencies here!
             services.AddConfiguration(configuration);
+            // or use more complex with FluentValidation
+            // services.AddConfigurationWithFluentValidation();
             services.AddApplication();
 
             return services;
