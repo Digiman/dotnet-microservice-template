@@ -2,6 +2,9 @@
 
 TODO: add here information and details about the template + diagrams
 
+[![Lint Code Base](https://github.com/Digiman/dotnet-microservice-template/actions/workflows/super-linter.yml/badge.svg)](https://github.com/Digiman/dotnet-microservice-template/actions/workflows/super-linter.yml)
+[![CodeQL](https://github.com/Digiman/dotnet-microservice-template/actions/workflows/codeql.yml/badge.svg)](https://github.com/Digiman/dotnet-microservice-template/actions/workflows/codeql.yml)
+
 ## Introduction
 
 TBD
