@@ -1,21 +1,25 @@
 using DotNet.ServiceName.Common.Configuration;
 using Microsoft.Extensions.Configuration;
 
-namespace DotNet.ServiceName.Common.Extensions
-{
-    /// <summary>
-    /// Simple extensions for configuration.
-    /// </summary>
-    public static class ConfigurationExtensions
-    {
-        public static HealthCheckOptions GetHealthCheckConfiguration(this IConfiguration configuration)
-        {
-            return configuration.GetSection(nameof(HealthCheckOptions)).Get<HealthCheckOptions>();
-        }
+namespace DotNet.ServiceName.Common.Extensions;
 
-        public static MemoryCheckOptions GetMemoryCheckConfiguration(this IConfiguration configuration)
-        {
-            return configuration.GetSection(nameof(MemoryCheckOptions)).Get<MemoryCheckOptions>();
-        }
+/// <summary>
+/// Simple extensions for configuration.
+/// </summary>
+public static class ConfigurationExtensions
+{
+    public static HealthCheckOptions GetHealthCheckConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(HealthCheckOptions)).Get<HealthCheckOptions>();
+    }
+
+    public static MemoryCheckOptions GetMemoryCheckConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(MemoryCheckOptions)).Get<MemoryCheckOptions>();
+    }
+    
+    public static bool IsSwaggerEnabled(this IConfiguration configuration)
+    {
+        return System.Convert.ToBoolean(configuration["SwaggerEnabled"]);
     }
 }

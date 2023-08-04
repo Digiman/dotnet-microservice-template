@@ -102,8 +102,11 @@ public static class ServiceCollectionExtensions
         // add support for the integration with IHttpContextAccessor
         services.AddHttpContextAccessor();
 
-        // configure Swagger Gen rules to generate API documentation
-        services.ConfigureSwaggerGeneration();
+        if (configuration.IsSwaggerEnabled())
+        {
+            // configure Swagger Gen rules to generate API documentation
+            services.ConfigureSwaggerGeneration();
+        }
 
         // configure error handling and return ProblemDetails standard object with details
         services.AddProblemDetails(options => ConfigureProblemDetails(options, environment));
