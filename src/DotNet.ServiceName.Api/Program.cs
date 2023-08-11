@@ -56,8 +56,11 @@ void ConfigureApplication(IApplicationBuilder app, IWebHostEnvironment env, IApi
     // Add using ProblemDetail middleware to handle errors and use RFC-7807 standard
     app.UseProblemDetails();
 
-    // configure Swagger UI
-    app.ConfigureSwagger(apiProvider);
+    if (builder.Configuration.IsSwaggerEnabled())
+    {
+        // configure Swagger UI
+        app.ConfigureSwagger(apiProvider);
+    }
 
     // add logger for all requests in the web server
     app.ConfigureSerilog();
