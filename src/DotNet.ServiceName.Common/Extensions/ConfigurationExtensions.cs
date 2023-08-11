@@ -17,7 +17,7 @@ public static class ConfigurationExtensions
     {
         return configuration.GetSection(nameof(MemoryCheckOptions)).Get<MemoryCheckOptions>();
     }
-    
+
     public static bool IsSwaggerEnabled(this IConfiguration configuration)
     {
         return System.Convert.ToBoolean(configuration["SwaggerEnabled"]);
