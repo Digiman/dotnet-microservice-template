@@ -13,7 +13,7 @@ TBD
 
 Application developed and used next technologies (on the backend) and components:
 
-* .NET 7 (STS)
+* .NET 8 (LTS)
 * [Serilog](https://github.com/serilog/serilog) for logging
 * [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) for Swagger (OpenAPI)
 * HealthCheck UI for ASP.NET Core - [Enterprise HealthChecks for ASP.NET Core Diagnostics Package](https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks)
@@ -33,11 +33,8 @@ TBD
 ## Build Process for Local Development
 
 * You have Docker installed - ideally latest version of the tool.
-* You have .NET 7 installed (SDK and runtime).
-* Visual Studio 2022 (17.5+) or JetBrains Rider (2023.1+) or Visual Studio Code as IDE - one of them, better for you, all them is appropriate.
-
-Optionally:
-* [Tye](https://github.com/dotnet/tye) - Project Tye for local development and helper for containers and Kubernetes.
+* You have .NET 8 installed (SDK and runtime).
+* Visual Studio 2022 (17.9+) or JetBrains Rider (2023.1+) or Visual Studio Code as IDE - one of them, better for you, all them is appropriate.
 
 ## Links
 
