@@ -1,9 +1,9 @@
+using Asp.Versioning.ApiExplorer;
 using DotNet.ServiceName.Api.Infrastructure.Extensions;
 using DotNet.ServiceName.Common.Extensions;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;

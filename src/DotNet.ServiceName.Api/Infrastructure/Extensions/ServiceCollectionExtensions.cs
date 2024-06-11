@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Asp.Versioning;
 using DotNet.ServiceName.Api.Infrastructure.Configuration;
 using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
 using DotNet.ServiceName.Api.Infrastructure.Swagger;
@@ -12,7 +13,6 @@ using DotNet.ServiceName.Common.Extensions;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -134,20 +134,16 @@ public static class ServiceCollectionExtensions
             options.ReportApiVersions = true;
             options.AssumeDefaultVersionWhenUnspecified = true;
             options.DefaultApiVersion = new ApiVersion(1, 0);
+        }).AddApiExplorer(options =>
+        {
+            // add the versioned API explorer, which also adds IApiVersionDescriptionProvider service
+            // note: the specified format code will format the version as "'v'major[.minor][-status]"
+            options.GroupNameFormat = "'v'VVV";
+
+            // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+            // can also be used to control the format of the API version in route templates
+            options.SubstituteApiVersionInUrl = true;
         });
-
-        // add API Explorer - to work with API versions
-        services.AddVersionedApiExplorer(
-            options =>
-            {
-                // add the versioned API explorer, which also adds IApiVersionDescriptionProvider service
-                // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                options.GroupNameFormat = "'v'VVV";
-
-                // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                // can also be used to control the format of the API version in route templates
-                options.SubstituteApiVersionInUrl = true;
-            });
 
         return services;
     }

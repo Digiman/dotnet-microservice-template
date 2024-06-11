@@ -1,7 +1,7 @@
+using Asp.Versioning.ApiExplorer;
 using DotNet.ServiceName.Api.Infrastructure.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
