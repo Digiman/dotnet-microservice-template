@@ -233,7 +233,7 @@ public static class ServiceCollectionExtensions
     {
         var healthCheckConfig = configuration.GetHealthCheckConfiguration();
 
-        if (healthCheckConfig.HealthCheckUiEnabled)
+        if (healthCheckConfig is { HealthCheckUiEnabled: true })
         {
             services
                 .AddHealthChecksUI(opt =>

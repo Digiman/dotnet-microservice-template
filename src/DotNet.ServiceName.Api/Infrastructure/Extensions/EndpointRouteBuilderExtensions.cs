@@ -13,9 +13,9 @@ namespace DotNet.ServiceName.Api.Infrastructure.Extensions;
 public static class EndpointRouteBuilderExtensions
 {
     public static void AddHealthcheckEndpoints(this IEndpointRouteBuilder endpoints,
-        Common.Configuration.HealthCheckOptions healthCheckConfig)
+        Common.Configuration.HealthCheckOptions? healthCheckConfig)
     {
-        if (healthCheckConfig.HealthCheckUiEnabled)
+        if (healthCheckConfig is { HealthCheckUiEnabled: true })
         {
             // add Health Check UI
             endpoints.MapHealthChecksUI(config =>

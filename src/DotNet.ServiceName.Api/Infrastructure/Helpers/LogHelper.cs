@@ -49,7 +49,7 @@ public static class LogHelper
     }
 
 #pragma warning disable S3358
-    public static LogEventLevel ExcludeHealthChecks(HttpContext ctx, double _, Exception ex) =>
+    public static LogEventLevel ExcludeHealthChecks(HttpContext ctx, double _, Exception? ex) =>
         ex != null
             ? LogEventLevel.Error
             : ctx.Response.StatusCode > 499
