@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Asp.Versioning;
 using AutoMapper;
 using DotNet.ServiceName.Application.DTOs;
 using DotNet.ServiceName.Application.Services.Interfaces;

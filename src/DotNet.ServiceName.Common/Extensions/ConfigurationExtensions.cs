@@ -8,12 +8,12 @@ namespace DotNet.ServiceName.Common.Extensions;
 /// </summary>
 public static class ConfigurationExtensions
 {
-    public static HealthCheckOptions GetHealthCheckConfiguration(this IConfiguration configuration)
+    public static HealthCheckOptions? GetHealthCheckConfiguration(this IConfiguration configuration)
     {
         return configuration.GetSection(nameof(HealthCheckOptions)).Get<HealthCheckOptions>();
     }
 
-    public static MemoryCheckOptions GetMemoryCheckConfiguration(this IConfiguration configuration)
+    public static MemoryCheckOptions? GetMemoryCheckConfiguration(this IConfiguration configuration)
     {
         return configuration.GetSection(nameof(MemoryCheckOptions)).Get<MemoryCheckOptions>();
     }
