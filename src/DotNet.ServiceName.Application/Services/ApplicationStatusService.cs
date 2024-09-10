@@ -1,10 +1,10 @@
-using System;
-using System.Reflection;
-using System.Threading.Tasks;
 using DotNet.ServiceName.Application.Models;
 using DotNet.ServiceName.Application.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace DotNet.ServiceName.Application.Services;
 

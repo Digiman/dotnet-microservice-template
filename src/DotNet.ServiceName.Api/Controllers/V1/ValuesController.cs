@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
 
 namespace DotNet.ServiceName.Api.Controllers.V1;
 

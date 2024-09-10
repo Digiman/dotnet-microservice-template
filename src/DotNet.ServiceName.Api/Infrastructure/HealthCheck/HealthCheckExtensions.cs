@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using DotNet.ServiceName.Common.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Collections.Generic;
 
 namespace DotNet.ServiceName.Api.Infrastructure.HealthCheck;
 

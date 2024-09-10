@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Asp.Versioning;
 using AutoMapper;
 using DotNet.ServiceName.Application.DTOs;
@@ -6,6 +5,7 @@ using DotNet.ServiceName.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading.Tasks;
 
 namespace DotNet.ServiceName.Api.Controllers;
 
