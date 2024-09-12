@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using DotNet.ServiceName.Application.Models;
+using System.Threading.Tasks;
 
 namespace DotNet.ServiceName.Application.Services.Interfaces;
 

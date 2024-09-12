@@ -1,7 +1,7 @@
-using System.Reflection;
 using DotNet.ServiceName.Application.Services;
 using DotNet.ServiceName.Application.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace DotNet.ServiceName.Application;
 

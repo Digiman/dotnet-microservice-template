@@ -1,7 +1,7 @@
-using System;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 using Serilog.Events;
+using System;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Helpers;
 

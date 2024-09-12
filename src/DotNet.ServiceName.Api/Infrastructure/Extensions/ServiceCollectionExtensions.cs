@@ -1,9 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using Asp.Versioning;
 using DotNet.ServiceName.Api.Infrastructure.Configuration;
 using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
@@ -19,6 +13,12 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using ProblemDetailsOptions = Hellang.Middleware.ProblemDetails.ProblemDetailsOptions;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Extensions;
