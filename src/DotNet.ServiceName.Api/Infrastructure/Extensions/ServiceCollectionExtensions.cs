@@ -166,6 +166,9 @@ public static class ServiceCollectionExtensions
             // add a custom operation filter which sets default values
             options.OperationFilter<SwaggerDefaultValues>();
 
+            // add operation filter to generate the OperationId value for endpoints
+            options.OperationFilter<SwaggerOperationIdFilter>();
+            
             // TODO: configure here the list of the XML files with documentation for Swagger!
             // Set the comments path for the Swagger JSON and UI.
             var xmlDocFiles = new[]
