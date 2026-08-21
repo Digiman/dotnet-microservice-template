@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <UserSecretsId>7461de0d-8c30-4021-9056-befd272ecdd8</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <DockerfileContext>..\..</DockerfileContext>
@@ -15,11 +15,9 @@
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.Mvc" />
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
-        <PackageReference Include="AspNetCore.HealthChecks.UI" />
-        <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
-        <PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" />
-        <PackageReference Include="AutoMapper" />
-        <PackageReference Include="Hellang.Middleware.ProblemDetails" />
+        <PackageReference Include="DotNetDiag.HealthChecks.UI" />
+        <PackageReference Include="DotNetDiag.HealthChecks.UI.Client" />
+        <PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
         <PackageReference Include="Swashbuckle.AspNetCore" />

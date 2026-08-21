@@ -1,10 +1,10 @@
 using Asp.Versioning;
 using DotNet.ServiceName.Api.Infrastructure.Configuration;
+using DotNet.ServiceName.Api.Infrastructure.ErrorHandling;
 using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
 using DotNet.ServiceName.Api.Infrastructure.Swagger;
 using DotNet.ServiceName.Application;
 using DotNet.ServiceName.Common.Extensions;
-using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -16,10 +16,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using ProblemDetailsOptions = Hellang.Middleware.ProblemDetails.ProblemDetailsOptions;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Extensions;
 
@@ -54,7 +52,7 @@ public static class ServiceCollectionExtensions
         // configure Web Server settings
         if (httpServices)
         {
-            services.ConfigureHttpServices(environment, configuration);
+            services.ConfigureHttpServices(configuration);
         }
 
         //-----------------------------------------------
@@ -77,11 +75,9 @@ public static class ServiceCollectionExtensions
     /// Configure all settings related to HTTP web server.
     /// </summary>
     /// <param name="services">Services collection.</param>
-    /// <param name="environment">Environment settings.</param>
     /// <param name="configuration">Configuration of the whole application.</param>
     /// <returns>Returns updates service collection.</returns>
-    private static IServiceCollection ConfigureHttpServices(this IServiceCollection services,
-        IWebHostEnvironment environment, IConfiguration configuration)
+    private static IServiceCollection ConfigureHttpServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddRouting(options =>
         {
@@ -109,7 +105,8 @@ public static class ServiceCollectionExtensions
         }
 
         // configure error handling and return ProblemDetails standard object with details
-        services.AddProblemDetails(options => ConfigureProblemDetails(options, environment));
+        services.AddProblemDetails();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
 
         // add HealthCheck UI
         services.AddHealthChecksUiConfiguration(configuration);
@@ -132,9 +129,13 @@ public static class ServiceCollectionExtensions
         {
             // reporting API versions will return the headers "api-supported-versions" and "api-deprecated-versions"
             options.ReportApiVersions = true;
-            options.AssumeDefaultVersionWhenUnspecified = true;
             options.DefaultApiVersion = new ApiVersion(1, 0);
-        }).AddApiExplorer(options =>
+
+            // all routes carry the version in the URL segment, so no other reader is needed
+            options.ApiVersionReader = new UrlSegmentApiVersionReader();
+        })
+        .AddMvc()
+        .AddApiExplorer(options =>
         {
             // add the versioned API explorer, which also adds IApiVersionDescriptionProvider service
             // note: the specified format code will format the version as "'v'major[.minor][-status]"
@@ -168,7 +169,7 @@ public static class ServiceCollectionExtensions
 
             // add operation filter to generate the OperationId value for endpoints
             options.OperationFilter<SwaggerOperationIdFilter>();
-            
+
             // TODO: configure here the list of the XML files with documentation for Swagger!
             // Set the comments path for the Swagger JSON and UI.
             var xmlDocFiles = new[]
@@ -185,46 +186,6 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
-    }
-
-    /// <summary>
-    /// Configure settings to process errors inside the application and API in general to return ProblemDetail result.
-    /// </summary>
-    /// <param name="options">Options for ProblemDetails middleware.</param>
-    /// <param name="environment">Environment settings.</param>
-    /// <remarks>
-    /// More details and information provided by the links bellow:
-    /// 1. https://www.alexdresko.com/2019/08/30/problem-details-error-handling-net-core-3/
-    /// 2. https://tools.ietf.org/html/rfc7807 - standard for the ProblemDetails
-    /// 3. https://lurumad.github.io/problem-details-an-standard-way-for-specifying-errors-in-http-api-responses-asp.net-core
-    /// 4. https://andrewlock.net/handling-web-api-exceptions-with-problemdetails-middleware/
-    /// </remarks>
-    private static void ConfigureProblemDetails(ProblemDetailsOptions options, IWebHostEnvironment environment)
-    {
-        // TODO: add logic to map the exceptions to generate proper ProblemDetails object to report about error inside the API
-        // TODO: configure and think better about return codes for all possible situations (4xx or 5xx)
-
-        // This is the default behavior; only include exception details in a local development environment.
-        options.IncludeExceptionDetails = (ctx, ex) => (environment.IsEnvironment("Local"));
-
-        // Map custom validation exception with validation errors in the pipeline (MediatR CQRS)
-        //options.Map<ValidationException>(exception => new ValidationProblemDetails(exception.Errors));
-        // options.Map<ValidationException>(exception =>
-        // {
-        //     var validationProblemDetails  = new ValidationProblemDetails(exception.Errors);
-        //     validationProblemDetails.Status = StatusCodes.Status422UnprocessableEntity;
-        //     return validationProblemDetails;
-        // });
-
-        // This will map NotImplementedException to the 501 Not Implemented status code.
-        options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
-
-        // This will map HttpRequestException to the 503 Service Unavailable status code.
-        options.MapToStatusCode<HttpRequestException>(StatusCodes.Status503ServiceUnavailable);
-
-        // Because exceptions are handled polymorphically, this will act as a "catch all" mapping, which is why it's added last.
-        // If an exception other than NotImplementedException and HttpRequestException is thrown, this will handle it.
-        options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
     }
 
     /// <summary>

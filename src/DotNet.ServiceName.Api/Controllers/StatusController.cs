@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using AutoMapper;
 using DotNet.ServiceName.Application.DTOs;
 using DotNet.ServiceName.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -20,12 +19,10 @@ namespace DotNet.ServiceName.Api.Controllers;
 public sealed class StatusController : ControllerBase
 {
     private readonly IApplicationStatusService _applicationStatusService;
-    private readonly IMapper _mapper;
 
-    public StatusController(IApplicationStatusService applicationStatusService, IMapper mapper)
+    public StatusController(IApplicationStatusService applicationStatusService)
     {
         _applicationStatusService = applicationStatusService;
-        _mapper = mapper;
     }
 
     /// <summary>
@@ -40,7 +37,7 @@ public sealed class StatusController : ControllerBase
     public async Task<ActionResult<StatusResponseDto>> GetStatus()
     {
         var status = await _applicationStatusService.GetApplicationStatusAsync();
-        var result = _mapper.Map<StatusResponseDto>(status);
+        var result = new StatusResponseDto(status);
 
         return Ok(result);
     }

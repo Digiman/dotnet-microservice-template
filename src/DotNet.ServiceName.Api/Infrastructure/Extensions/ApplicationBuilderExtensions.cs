@@ -13,9 +13,9 @@ public static class ApplicationBuilderExtensions
     /// Configure Swagger UI for web application with versions support.
     /// </summary>
     /// <param name="app">Application builder.</param>
-    /// <param name="provider">Provider for API versions.</param>
+    /// <param name="apiDescriptions">Descriptions of all API versions discovered from the mapped endpoints.</param>
     /// <returns>Returns updated object with application builder.</returns>
-    public static IApplicationBuilder ConfigureSwagger(this IApplicationBuilder app, IApiVersionDescriptionProvider provider)
+    public static IApplicationBuilder ConfigureSwagger(this IApplicationBuilder app, IEnumerable<ApiVersionDescription> apiDescriptions)
     {
         app.UseSwagger();
 
@@ -25,7 +25,7 @@ public static class ApplicationBuilderExtensions
         {
 
             // build a swagger endpoint for each discovered API version
-            foreach (var description in provider.ApiVersionDescriptions)
+            foreach (var description in apiDescriptions)
             {
                 var apiName = $"{Constants.ApiName} {description.GroupName.ToUpperInvariant()}";
                 options.SwaggerEndpoint($"{description.GroupName}/swagger.json", apiName);
@@ -70,7 +70,7 @@ public static class ApplicationBuilderExtensions
             ForwardedHeaders = ForwardedHeaders.All
         };
         forwardedHeadersOptions.KnownProxies.Clear();
-        forwardedHeadersOptions.KnownNetworks.Clear();
+        forwardedHeadersOptions.KnownIPNetworks.Clear();
         app.UseForwardedHeaders(forwardedHeadersOptions);
 
         return app;
@@ -87,87 +87,21 @@ public static class ApplicationBuilderExtensions
     /// </remarks>
     public static IApplicationBuilder ConfigureSecurityHeaders(this IApplicationBuilder app)
     {
-        const int hstsMaxAgeInSeconds = 60 * 60 * 24 * 60; // 60 days in seconds
-
         var policyHeaders = new HeaderPolicyCollection()
             .AddDefaultSecurityHeaders()
-            .AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: hstsMaxAgeInSeconds)
+            .AddStrictTransportSecurityMaxAgeIncludeSubDomains()
             .AddPermissionsPolicy(builder =>
             {
-                builder.AddDefaultPermissionsPolicies();
+                // recommended "secure" directives based on OWASP recommendations
+                builder.AddDefaultSecureDirectives();
+
+                // allow fullscreen usage (kept from previous custom policy)
+                builder.AddFullscreen().All();
             })
-            .RemoveCustomHeader("X-Powered-By");// 60 days in seconds
+            .RemoveCustomHeader("X-Powered-By");
 
         app.UseSecurityHeaders(policyHeaders);
 
         return app;
-    }
-
-    /// <summary>
-    /// Configure permissions policy HTTP header for the browser.
-    /// </summary>
-    /// <param name="builder">Permission policy builder.</param>
-    /// <remarks>
-    /// See more here:
-    /// 1. https://www.w3.org/TR/permissions-policy-1/
-    /// 2. https://github.com/w3c/webappsec-permissions-policy/blob/main/permissions-policy-explainer.md
-    /// 3. https://w3c.github.io/webappsec-permissions-policy/
-    /// 4. https://www.permissionspolicy.com/
-    /// </remarks>
-    private static void AddDefaultPermissionsPolicies(this PermissionsPolicyBuilder builder)
-    {
-        builder.AddAccelerometer() // accelerometer 'none'
-            .None();
-
-        // non supported in Google
-        // builder.AddAmbientLightSensor() // ambient-light-sensor 'none'
-        //     .None();
-
-        builder.AddAutoplay() // autoplay 'none'
-            .None();
-
-        builder.AddCamera() // camera 'none'
-            .None();
-
-        builder.AddEncryptedMedia() // encrypted-media 'none'
-            .None();
-
-        builder.AddFullscreen() // fullscreen *
-            .All();
-
-        builder.AddGeolocation() // geolocation 'none'
-            .None();
-
-        builder.AddGyroscope() // gyroscope 'none'
-            .None();
-
-        builder.AddMagnetometer() // magnetometer 'none'
-            .None();
-
-        builder.AddMicrophone() // microphone 'none'
-            .None();
-
-        builder.AddMidi() // midi 'none'
-            .None();
-
-        builder.AddPayment() // payment 'none'
-            .None();
-
-        builder.AddPictureInPicture() // picture-in-picture 'none'
-            .None();
-
-        // non supported in Google
-        // builder.AddSpeaker() // speaker 'none'
-        //     .None();
-
-        builder.AddSyncXHR() // sync-xhr 'none'
-            .None();
-
-        builder.AddUsb() // usb 'none'
-            .None();
-
-        // non supported in Google
-        // builder.AddVR() // vr 'none'
-        //     .None();
     }
 }
