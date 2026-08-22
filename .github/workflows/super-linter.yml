@@ -17,7 +17,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: read
+
 jobs:
   # This workflow contains a single job called "build"
   run-lint:
@@ -43,3 +45,17 @@ jobs:
           VALIDATE_MARKDOWN: false
           VALIDATE_EDITORCONFIG: false
           VALIDATE_GITHUB_ACTIONS: false
+          # C# formatting/analysis is already verified in ci.yml via `dotnet format --verify-no-changes`
+          # with the SDK pinned in global.json; super-linter's container ships a different
+          # .NET SDK and cannot honor global.json, so keep these disabled here.
+          VALIDATE_CSHARP: false
+          VALIDATE_DOTNET_SLN_FORMAT_ANALYZERS: false
+          VALIDATE_DOTNET_SLN_FORMAT_STYLE: false
+          VALIDATE_DOTNET_SLN_FORMAT_WHITESPACE: false
+          # Prettier style is not enforced; plain JSON/YAML/HTML syntax validation stays enabled.
+          VALIDATE_HTML_PRETTIER: false
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+          # The token only has contents:read, so disable per-linter status reporting.
+          MULTI_STATUS: false
