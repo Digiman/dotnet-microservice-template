@@ -26,6 +26,7 @@ ConfigureApplication(app, builder.Environment);
 
 // run the application
 await app.RunAsync();
+return;
 
 void ConfigureServices()
 {

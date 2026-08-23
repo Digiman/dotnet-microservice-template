@@ -1,9 +1,11 @@
 using DotNet.ServiceName.Application.Models;
 using DotNet.ServiceName.Application.Services.Interfaces;
+using DotNet.ServiceName.Common.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace DotNet.ServiceName.Application.Services;
@@ -56,10 +58,12 @@ public sealed class ApplicationStatusService : IApplicationStatusService
         return new AppInfo
         {
             MachineName = Environment.MachineName,
-            EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+            EnvironmentName = EnvironmentHelpers.GetEnvironmentName(),
+            HostingEnvironmentName = EnvironmentHelpers.GetHostingEnvironmentName(),
             ReleaseDate = System.IO.File.GetLastWriteTime(assembly.Location).ToUniversalTime(),
             AppStartTime = System.Diagnostics.Process.GetCurrentProcess().StartTime.ToUniversalTime(),
-            Version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString()
+            Version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(),
+            Runtime = RuntimeInformation.FrameworkDescription
         };
     }
 

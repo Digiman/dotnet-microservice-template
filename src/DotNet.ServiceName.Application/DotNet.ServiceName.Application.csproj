@@ -17,4 +17,8 @@
         <PackageReference Include="Microsoft.Extensions.Options" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DotNet.ServiceName.Common\DotNet.ServiceName.Common.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -14,7 +14,7 @@ namespace DotNet.ServiceName.Api.Controllers.V1;
 [SwaggerTag("Sample values controller")]
 public sealed class ValuesController : ControllerBase
 {
-    private readonly string[] _values = new string[] { "value1", "value2" };
+    private readonly string[] _values = ["value1", "value2"];
 
     /// <summary>
     /// Get list of the values.

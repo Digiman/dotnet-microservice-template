@@ -115,7 +115,7 @@ public static class ServiceCollectionExtensions
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
 
-        // add HealthCheck UI
+        // add Health Check UI
         services.AddHealthChecksUiConfiguration(configuration);
 
         // add health checks

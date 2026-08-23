@@ -3,6 +3,7 @@ using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
 using System.Text.Json.Nodes;
+
 namespace DotNet.ServiceName.Api.Infrastructure.Swagger;
 
 /// <summary>

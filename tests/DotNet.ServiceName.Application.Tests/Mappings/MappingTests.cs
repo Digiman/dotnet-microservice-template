@@ -20,6 +20,7 @@ public sealed class MappingTests
             {
                 MachineName = "test-machine",
                 EnvironmentName = "Development",
+                HostingEnvironmentName = "Development",
                 ReleaseDate = new DateTime(2025, 6, 15, 9, 30, 0, DateTimeKind.Utc),
                 AppStartTime = new DateTime(2026, 1, 1, 11, 45, 0, DateTimeKind.Utc),
                 Version = "1.2.3"
@@ -32,6 +33,7 @@ public sealed class MappingTests
         Assert.NotNull(dto.AppInfo);
         Assert.Equal(source.AppInfo.MachineName, dto.AppInfo.MachineName);
         Assert.Equal(source.AppInfo.EnvironmentName, dto.AppInfo.EnvironmentName);
+        Assert.Equal(source.AppInfo.HostingEnvironmentName, dto.AppInfo.HostingEnvironmentName);
         Assert.Equal(source.AppInfo.ReleaseDate, dto.AppInfo.ReleaseDate);
         Assert.Equal(source.AppInfo.AppStartTime, dto.AppInfo.AppStartTime);
         Assert.Equal(source.AppInfo.Version, dto.AppInfo.Version);
