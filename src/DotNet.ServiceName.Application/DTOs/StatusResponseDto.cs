@@ -1,31 +1,17 @@
-using System;
+using DotNet.ServiceName.Application.Models;
+using Facet;
 
 namespace DotNet.ServiceName.Application.DTOs;
 
 /// <summary>
-/// Application status and details for each connected service to use to identify current configuration.
+/// Application info facet generated from <see cref="AppInfo"/>.
 /// </summary>
-public sealed class StatusResponseDto
-{
-    /// <summary>
-    /// Datetime when status response created (request processing time).
-    /// </summary>
-    public DateTime Created { get; set; }
-
-    /// <summary>
-    /// Application information.
-    /// </summary>
-    public AppInfoDto? AppInfo { get; set; }
-}
+[Facet(typeof(AppInfo))]
+public sealed partial class AppInfoDto;
 
 /// <summary>
-/// Application info.
+/// Application status and details for each connected service to use to identify current configuration.
+/// Facet generated from <see cref="StatusResponse"/> with nested mapping of the application info.
 /// </summary>
-public sealed class AppInfoDto
-{
-    public string? MachineName { get; set; }
-    public string? EnvironmentName { get; set; }
-    public DateTime ReleaseDate { get; set; }
-    public DateTime AppStartTime { get; set; }
-    public string? Version { get; set; }
-}
+[Facet(typeof(StatusResponse), NestedFacets = [typeof(AppInfoDto)])]
+public sealed partial class StatusResponseDto;

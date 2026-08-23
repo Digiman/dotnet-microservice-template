@@ -33,7 +33,7 @@ public readonly struct Constants
     public static readonly string Copyright = $"Copyright (c) {DateTime.Today.Year}, [Company name]";
 
     /// <summary>
-    /// Url to the company main web site.
+    /// Url to the company main website.
     /// </summary>
     public const string CompanyUrl = "https://www.companyname.net/";
 }

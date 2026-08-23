@@ -23,9 +23,38 @@ public sealed class StatusResponse
 /// </summary>
 public sealed class AppInfo
 {
+    /// <summary>
+    /// Machine name where the application is running.
+    /// </summary>
     public string? MachineName { get; set; }
+
+    /// <summary>
+    /// Environment name.
+    /// </summary>
     public string? EnvironmentName { get; set; }
+
+    /// <summary>
+    /// Hosting .NET environment name.
+    /// </summary>
+    public required string HostingEnvironmentName { get; set; }
+
+    /// <summary>
+    /// Release date.
+    /// </summary>
     public DateTime ReleaseDate { get; set; }
+
+    /// <summary>
+    /// Application start time.
+    /// </summary>
     public DateTime AppStartTime { get; set; }
+
+    /// <summary>
+    /// Application version.
+    /// </summary>
     public string? Version { get; set; }
+
+    /// <summary>
+    /// Runtime version of the .NET.
+    /// </summary>
+    public string? Runtime { get; set; }
 }

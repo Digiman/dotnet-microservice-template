@@ -1,0 +1,65 @@
+# This workflow builds, tests and verifies code style of the solution.
+#
+# For more information, see:
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      # Installs the .NET SDK required for the project (see global.json)
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      # Cache NuGet packages between builds to speed up restore
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Packages.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      # Restores all dependencies for the solution
+      - name: Restore dependencies
+        run: dotnet restore DotNet.ServiceName.sln
+
+      # Builds the solution in Release configuration without re-restoring
+      - name: Build solution
+        run: dotnet build DotNet.ServiceName.sln -c Release --no-restore
+
+      # Runs all tests in the solution
+      - name: Run tests
+        run: dotnet test DotNet.ServiceName.sln -c Release --no-build
+
+      # Verifies that the code base is formatted according to .editorconfig rules
+      - name: Verify code style
+        run: dotnet format DotNet.ServiceName.sln --verify-no-changes

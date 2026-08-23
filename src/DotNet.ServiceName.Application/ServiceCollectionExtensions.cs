@@ -1,7 +1,6 @@
 using DotNet.ServiceName.Application.Services;
 using DotNet.ServiceName.Application.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace DotNet.ServiceName.Application;
 
@@ -17,9 +16,6 @@ public static class ServiceCollectionExtensions
     /// <returns>Returns updated services collection.</returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        // register mapping profiles for AutoMapper
-        services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
         // register application services
         services.AddTransient<IApplicationStatusService, ApplicationStatusService>();
 

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Swagger;
 
@@ -22,7 +22,7 @@ public sealed class SwaggerDefaultValues : IOperationFilter
     {
         var apiDescription = context.ApiDescription;
 
-        operation.Deprecated |= apiDescription.IsDeprecated();
+        operation.Deprecated |= apiDescription.IsDeprecated;
 
         if (operation.Parameters == null)
         {
@@ -31,7 +31,7 @@ public sealed class SwaggerDefaultValues : IOperationFilter
 
         // REF: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/412
         // REF: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/pull/413
-        foreach (var parameter in operation.Parameters)
+        foreach (var parameter in operation.Parameters.OfType<OpenApiParameter>())
         {
             var description = apiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);
 
@@ -40,9 +40,9 @@ public sealed class SwaggerDefaultValues : IOperationFilter
                 parameter.Description = description.ModelMetadata?.Description;
             }
 
-            if (parameter.Schema.Default == null && description.DefaultValue != null)
+            if (parameter.Schema is OpenApiSchema schema && schema.Default is null && description.DefaultValue != null)
             {
-                parameter.Schema.Default = new OpenApiString(description.DefaultValue.ToString());
+                schema.Default = JsonValue.Create(description.DefaultValue.ToString());
             }
 
             parameter.Required |= description.IsRequired;

@@ -1,10 +1,9 @@
-using Asp.Versioning.ApiExplorer;
 using DotNet.ServiceName.Api.Infrastructure.Extensions;
 using DotNet.ServiceName.Common.Extensions;
-using Hellang.Middleware.ProblemDetails;
+using Facet.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -23,64 +22,60 @@ ConfigureServices();
 var app = builder.Build();
 
 // configure the web app middleware components
-var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-ConfigureApplication(app, builder.Environment, apiVersionDescriptionProvider);
+ConfigureApplication(app, builder.Environment);
 
 // run the application
 await app.RunAsync();
+return;
 
 void ConfigureServices()
 {
     builder.Services.ConfigureApiService(builder.Configuration, builder.Environment, true);
 }
 
-void ConfigureApplication(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiProvider)
+void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
 {
     var healthCheckConfig = builder.Configuration.GetHealthCheckConfiguration();
 
     // configure Forwarder headers for proxies and Load Balancers
-    app.ConfigureForwarderOptions();
+    appBuilder.ConfigureForwarderOptions();
 
     if (!env.IsEnvironment("Local"))
     {
-        // Use HSTS default settings (default for 30 days)
-        // app.UseHsts();
-
-        // custom configuration for security headers (HSTS for 60 days)
-        app.ConfigureSecurityHeaders();
+        // custom configuration for security headers
+        appBuilder.ConfigureSecurityHeaders();
     }
 
     // redirect to the HTTPS connection
-    app.UseHttpsRedirection();
+    appBuilder.UseHttpsRedirection();
 
-    // Add using ProblemDetail middleware to handle errors and use RFC-7807 standard
-    app.UseProblemDetails();
+    // Add using exception handler middleware to handle errors and use RFC-7807 standard (ProblemDetails)
+    appBuilder.UseExceptionHandler();
+
+    // add logger for all requests in the web server
+    appBuilder.ConfigureSerilog();
+
+    // use default files
+    appBuilder.UseDefaultFiles();
+
+    // allow to use static files
+    appBuilder.UseStaticFiles();
+
+    // add controllers endpoints
+    appBuilder.MapControllers();
+
+    // add health checks endpoints and configurations
+    appBuilder.AddHealthcheckEndpoints(healthCheckConfig);
 
     if (builder.Configuration.IsSwaggerEnabled())
     {
-        // configure Swagger UI
-        app.ConfigureSwagger(apiProvider);
+        // configure Swagger UI with API versions discovered from the mapped endpoints
+        appBuilder.ConfigureSwagger(appBuilder.DescribeApiVersions());
+
+        // configure Scalar API reference as an alternative UI for the same OpenAPI documents
+        appBuilder.AddScalarApiReferenceEndpoint();
+
+        // configure Facet Dashboard page with configuration for all facets
+        appBuilder.MapFacetDashboard();
     }
-
-    // add logger for all requests in the web server
-    app.ConfigureSerilog();
-
-    // use default files
-    app.UseDefaultFiles();
-
-    // allow to use static files
-    app.UseStaticFiles();
-
-    // Use routing middleware to handle requests to the controllers
-    app.UseRouting();
-
-    // configure endpoints routing
-    app.UseEndpoints(endpoints =>
-    {
-        // add controllers endpoints
-        endpoints.MapControllers();
-
-        // add health checks endpoints and configurations
-        endpoints.AddHealthcheckEndpoints(healthCheckConfig);
-    });
 }
