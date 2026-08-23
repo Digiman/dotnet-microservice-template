@@ -22,4 +22,14 @@ public static class ConfigurationExtensions
     {
         return System.Convert.ToBoolean(configuration["SwaggerEnabled"]);
     }
+
+    public static bool IsSwaggerAuthEnabled(this IConfiguration configuration)
+    {
+        return System.Convert.ToBoolean(configuration["SwaggerAuth"]);
+    }
+
+    public static ApiKeyOptions? GetApiKeyConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(ApiKeyOptions)).Get<ApiKeyOptions>();
+    }
 }
