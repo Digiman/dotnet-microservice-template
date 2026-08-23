@@ -1,6 +1,8 @@
 using Asp.Versioning;
 using DotNet.ServiceName.Application.DTOs;
+using DotNet.ServiceName.Application.Models;
 using DotNet.ServiceName.Application.Services.Interfaces;
+using Facet.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -37,7 +39,7 @@ public sealed class StatusController : ControllerBase
     public async Task<ActionResult<StatusResponseDto>> GetStatus()
     {
         var status = await _applicationStatusService.GetApplicationStatusAsync();
-        var result = new StatusResponseDto(status);
+        var result = status.ToFacet<StatusResponse, StatusResponseDto>();
 
         return Ok(result);
     }

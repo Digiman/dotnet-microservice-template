@@ -24,7 +24,7 @@ Application developed and used next technologies (on the backend) and components
 * [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) for Swagger (OpenAPI)
 * [Scalar](https://scalar.com/) for an alternative interactive API reference UI ([Scalar.AspNetCore](https://www.nuget.org/packages/Scalar.AspNetCore))
 * [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) for API versioning (URL segment based)
-* [Facet](https://github.com/Tim-Maes/Facet) for compile-time generated DTOs and mapping (no runtime reflection)
+* [Facet](https://github.com/Tim-Maes/Facet) for compile-time generated DTOs and mapping (no runtime reflection), with [Facet.Extensions](https://www.nuget.org/packages/Facet.Extensions) helpers (`ToFacet`) and a [Facet.Dashboard](https://www.nuget.org/packages/Facet.Dashboard) page (`/facets`) to inspect all facets
 * HealthCheck UI for ASP.NET Core - [DotNetDiag HealthChecks for ASP.NET Core Diagnostics Package](https://github.com/DotNetDiag/HealthChecks)
 * Central Package Management via [`Directory.Packages.props`](Directory.Packages.props)
 

@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Facet" />
+        <PackageReference Include="Facet.Extensions" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />

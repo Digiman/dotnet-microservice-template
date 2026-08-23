@@ -16,6 +16,8 @@
         <PackageReference Include="Asp.Versioning.Mvc" />
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
         <PackageReference Include="DotNetDiag.HealthChecks.UI" />
+        <PackageReference Include="Facet.Dashboard" />
+        <PackageReference Include="Facet.Extensions" />
         <PackageReference Include="DotNetDiag.HealthChecks.UI.Client" />
         <PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />

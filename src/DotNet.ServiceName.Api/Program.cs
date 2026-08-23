@@ -1,5 +1,6 @@
 using DotNet.ServiceName.Api.Infrastructure.Extensions;
 using DotNet.ServiceName.Common.Extensions;
+using Facet.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -72,5 +73,8 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
 
         // configure Scalar API reference as an alternative UI for the same OpenAPI documents
         appBuilder.AddScalarApiReferenceEndpoint();
+
+        // configure Facet Dashboard page with configuration for all facets
+        appBuilder.MapFacetDashboard();
     }
 }

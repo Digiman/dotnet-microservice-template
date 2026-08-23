@@ -5,6 +5,7 @@ using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
 using DotNet.ServiceName.Api.Infrastructure.Swagger;
 using DotNet.ServiceName.Application;
 using DotNet.ServiceName.Common.Extensions;
+using Facet.Dashboard;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -102,6 +103,12 @@ public static class ServiceCollectionExtensions
         {
             // configure Swagger Gen rules to generate API documentation
             services.ConfigureSwaggerGeneration();
+
+            // register services for the Facet Dashboard - UI with configuration for all facets
+            services.AddFacetDashboard(options =>
+            {
+                options.Title = $"{Constants.ApiName} - Facet Dashboard";
+            });
         }
 
         // configure error handling and return ProblemDetails standard object with details

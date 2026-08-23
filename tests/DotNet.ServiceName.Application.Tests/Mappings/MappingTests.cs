@@ -1,5 +1,6 @@
 using DotNet.ServiceName.Application.DTOs;
 using DotNet.ServiceName.Application.Models;
+using Facet.Extensions;
 using Xunit;
 
 namespace DotNet.ServiceName.Application.Tests.Mappings;
@@ -25,7 +26,7 @@ public sealed class MappingTests
             }
         };
 
-        var dto = new StatusResponseDto(source);
+        var dto = source.ToFacet<StatusResponse, StatusResponseDto>();
 
         Assert.Equal(source.Created, dto.Created);
         Assert.NotNull(dto.AppInfo);
@@ -45,7 +46,7 @@ public sealed class MappingTests
             AppInfo = null
         };
 
-        var dto = new StatusResponseDto(source);
+        var dto = source.ToFacet<StatusResponse, StatusResponseDto>();
 
         Assert.Equal(source.Created, dto.Created);
         Assert.Null(dto.AppInfo);
