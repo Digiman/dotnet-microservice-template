@@ -94,9 +94,6 @@ public static class ApplicationBuilderExtensions
             {
                 // recommended "secure" directives based on OWASP recommendations
                 builder.AddDefaultSecureDirectives();
-
-                // allow fullscreen usage (kept from previous custom policy)
-                builder.AddFullscreen().All();
             })
             .RemoveCustomHeader("X-Powered-By");
 

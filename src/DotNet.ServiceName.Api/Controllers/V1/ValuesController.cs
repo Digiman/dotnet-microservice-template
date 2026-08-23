@@ -1,4 +1,6 @@
 using Asp.Versioning;
+using DotNet.ServiceName.Api.Infrastructure.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ namespace DotNet.ServiceName.Api.Controllers.V1;
 /// Sample controller to work with test values.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = ApiKeyAuthenticationHandler.SchemeName)]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 [SwaggerTag("Sample values controller")]
