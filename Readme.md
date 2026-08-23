@@ -22,6 +22,7 @@ Application developed and used next technologies (on the backend) and components
 * .NET 10 (LTS) - see [`global.json`](global.json) for the pinned SDK version
 * [Serilog](https://github.com/serilog/serilog) for logging
 * [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) for Swagger (OpenAPI)
+* [Scalar](https://scalar.com/) for an alternative interactive API reference UI ([Scalar.AspNetCore](https://www.nuget.org/packages/Scalar.AspNetCore))
 * [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) for API versioning (URL segment based)
 * [Facet](https://github.com/Tim-Maes/Facet) for compile-time generated DTOs and mapping (no runtime reflection)
 * HealthCheck UI for ASP.NET Core - [DotNetDiag HealthChecks for ASP.NET Core Diagnostics Package](https://github.com/DotNetDiag/HealthChecks)
@@ -74,7 +75,7 @@ dotnet format DotNet.ServiceName.sln --verify-no-changes
 
 # build and run in Docker (container listens on port 8080 internally)
 docker compose up --build
-# then open http://localhost:5050/swagger/index.html
+# then open http://localhost:5050/swagger/index.html or http://localhost:5050/scalar
 ```
 
 ## Links

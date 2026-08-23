@@ -69,5 +69,8 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     {
         // configure Swagger UI with API versions discovered from the mapped endpoints
         appBuilder.ConfigureSwagger(appBuilder.DescribeApiVersions());
+
+        // configure Scalar API reference as an alternative UI for the same OpenAPI documents
+        appBuilder.AddScalarApiReferenceEndpoint();
     }
 }
