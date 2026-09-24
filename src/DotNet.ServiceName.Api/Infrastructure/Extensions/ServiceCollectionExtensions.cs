@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using DotNet.ServiceName.Api.Infrastructure.Auth;
 using DotNet.ServiceName.Api.Infrastructure.Configuration;
 using DotNet.ServiceName.Api.Infrastructure.ErrorHandling;
 using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
@@ -6,6 +7,7 @@ using DotNet.ServiceName.Api.Infrastructure.Swagger;
 using DotNet.ServiceName.Application;
 using DotNet.ServiceName.Common.Extensions;
 using Facet.Dashboard;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -99,10 +101,13 @@ public static class ServiceCollectionExtensions
         // add support for the integration with IHttpContextAccessor
         services.AddHttpContextAccessor();
 
+        // configure API Key authentication for the whole application
+        services.ConfigureApiKeyAuthentication(configuration);
+
         if (configuration.IsSwaggerEnabled())
         {
             // configure Swagger Gen rules to generate API documentation
-            services.ConfigureSwaggerGeneration();
+            services.ConfigureSwaggerGeneration(configuration);
 
             // register services for the Facet Dashboard - UI with configuration for all facets
             services.AddFacetDashboard(options =>
@@ -160,8 +165,9 @@ public static class ServiceCollectionExtensions
     /// Configure Swagger Generation for API docs.
     /// </summary>
     /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
     /// <returns>Returns updates service collection.</returns>
-    private static IServiceCollection ConfigureSwaggerGeneration(this IServiceCollection services)
+    private static IServiceCollection ConfigureSwaggerGeneration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
@@ -177,6 +183,17 @@ public static class ServiceCollectionExtensions
             // add operation filter to generate the OperationId value for endpoints
             options.OperationFilter<SwaggerOperationIdFilter>();
 
+            if (configuration.IsSwaggerAuthEnabled())
+            {
+                var apiKeyConfig = configuration.GetApiKeyConfiguration();
+
+                if (apiKeyConfig is not null)
+                {
+                    // add support for the API Key authorization to be able to call secured endpoints from Swagger UI
+                    options.AddApiKeySupport(apiKeyConfig.HeaderName);
+                }
+            }
+
             // TODO: configure here the list of the XML files with documentation for Swagger!
             // Set the comments path for the Swagger JSON and UI.
             var xmlDocFiles = new[]
@@ -191,6 +208,34 @@ public static class ServiceCollectionExtensions
                 options.IncludeXmlComments(xmlPath);
             }
         });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configure API Key authentication for the application - key value is sent via the configured HTTP header.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureApiKeyAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var apiKeyConfig = configuration.GetApiKeyConfiguration();
+
+        if (apiKeyConfig is null)
+        {
+            return services;
+        }
+
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = ApiKeyAuthenticationHandler.SchemeName;
+                options.DefaultChallengeScheme = ApiKeyAuthenticationHandler.SchemeName;
+            })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, _ => { });
+
+        services.AddAuthorization();
 
         return services;
     }

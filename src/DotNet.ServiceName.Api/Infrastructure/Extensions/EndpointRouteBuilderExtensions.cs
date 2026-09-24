@@ -1,8 +1,11 @@
+using DotNet.ServiceName.Api.Infrastructure.Swagger;
+using DotNet.ServiceName.Common.Extensions;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 
@@ -20,12 +23,21 @@ public static class EndpointRouteBuilderExtensions
     /// <remarks>
     /// More details here: https://scalar.com/
     /// </remarks>
-    public static void AddScalarApiReferenceEndpoint(this IEndpointRouteBuilder endpoints)
+    public static void AddScalarApiReferenceEndpoint(this IEndpointRouteBuilder endpoints, IConfiguration configuration)
     {
         // serve the API reference at /scalar with a document selector for each discovered API version
-        endpoints.MapScalarApiReference(options => options
-            .WithTitle($"{Constants.ApiName} - Scalar")
-            .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json"));
+        endpoints.MapScalarApiReference(options =>
+        {
+            options
+                .WithTitle($"{Constants.ApiName} - Scalar")
+                .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
+
+            if (configuration.IsSwaggerAuthEnabled())
+            {
+                // add support for the API Key authorization to be able to call secured endpoints from Scalar
+                options.AddApiKeySupport();
+            }
+        });
     }
 
     public static void AddHealthcheckEndpoints(this IEndpointRouteBuilder endpoints,

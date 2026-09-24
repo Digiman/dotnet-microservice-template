@@ -1,8 +1,10 @@
 using Asp.Versioning;
+using DotNet.ServiceName.Api.Infrastructure.Auth;
 using DotNet.ServiceName.Application.DTOs;
 using DotNet.ServiceName.Application.Models;
 using DotNet.ServiceName.Application.Services.Interfaces;
 using Facet.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -14,6 +16,7 @@ namespace DotNet.ServiceName.Api.Controllers;
 /// Controller to get the status of teh application to monitor activity and work, get configuration details and etc.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = ApiKeyAuthenticationHandler.SchemeName)]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 [Produces("application/json")]

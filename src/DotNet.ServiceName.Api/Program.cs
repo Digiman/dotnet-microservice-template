@@ -55,6 +55,10 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     // add logger for all requests in the web server
     appBuilder.ConfigureSerilog();
 
+    // enable Authentication and Authorization middlewares - API Key is validated for all secured endpoints
+    appBuilder.UseAuthentication();
+    appBuilder.UseAuthorization();
+
     // use default files
     appBuilder.UseDefaultFiles();
 
@@ -73,7 +77,7 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
         appBuilder.ConfigureSwagger(appBuilder.DescribeApiVersions());
 
         // configure Scalar API reference as an alternative UI for the same OpenAPI documents
-        appBuilder.AddScalarApiReferenceEndpoint();
+        appBuilder.AddScalarApiReferenceEndpoint(builder.Configuration);
 
         // configure Facet Dashboard page with configuration for all facets
         appBuilder.MapFacetDashboard();
