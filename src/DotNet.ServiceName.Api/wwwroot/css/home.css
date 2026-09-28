@@ -2,7 +2,10 @@
  * Styles of the home page (src/DotNet.ServiceName.Api/Pages/Index.cshtml).
  *
  * The page is a single self contained document - no layout, no external fonts, and the icons are
- * the svg files from wwwroot/icons.
+ * the svg files from wwwroot/icons and wwwroot/images.
+ *
+ * Layout: a slim top bar carries the service name, the environment badge and the theme switch;
+ * the content below it holds the description and the link cards.
  *
  * Theming: `:root` holds the light palette, the dark palette is applied either when the operating
  * system asks for it (`prefers-color-scheme`) or when `data-theme="dark"` is set on the root
@@ -15,15 +18,18 @@
   color-scheme: light;
 
   --brand: #4338ca;
-  --brand-dark: #3730a3;
+  --brand-contrast: #3730a3;
   --surface: #fff;
   --surface-muted: #f8fafc;
+  --topbar-background: rgb(255 255 255 / 85%);
   --border: #cbd5e1;
   --text: #0f172a;
   --text-muted: #64748b;
   --shadow: 0 1px 3px rgb(15 23 42 / 8%), 0 10px 25px rgb(15 23 42 / 6%);
   --switch-background: #e2e8f0;
   --switch-selected: #fff;
+  --switch-text: #475569;
+  --focus-ring: #4338ca;
 }
 
 * {
@@ -38,33 +44,54 @@ body {
   line-height: 1.5;
 }
 
-.home {
-  margin: 0 auto;
-  max-width: 60rem;
-  padding: 3rem 1.5rem;
+/* top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--topbar-background);
+  backdrop-filter: blur(8px);
 }
 
-.home__header {
-  margin-bottom: 2rem;
-  text-align: center;
+.topbar__brand {
+  display: flex;
+  gap: .625rem;
+  align-items: center;
+  min-width: 0;
 }
 
-.home__title {
+.topbar__mark {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+}
+
+.topbar__title {
   margin: 0;
-  font-size: 1.75rem;
+  overflow: hidden;
+  font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.home__lead {
-  margin: .5rem 0 0;
-  color: var(--text-muted);
+.topbar__actions {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
 }
 
-.home__badge {
-  display: inline-block;
-  margin: .75rem 0 0;
-  padding: .125rem .625rem;
+.topbar__badge {
+  margin: 0;
+  padding: .1875rem .625rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   background-color: var(--surface);
@@ -72,20 +99,22 @@ body {
   font-size: .75rem;
   letter-spacing: .04em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* theme switch - a radio group, so it works with keyboard and screen readers out of the box */
-.home__themes {
+.themes {
   display: inline-flex;
-  gap: .25rem;
-  margin: 1.25rem 0 0;
-  padding: .25rem;
+  gap: .125rem;
+  margin: 0;
+  padding: .1875rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   background-color: var(--switch-background);
 }
 
-.home__themes-legend {
+.themes__legend,
+.visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -96,17 +125,17 @@ body {
   white-space: nowrap;
 }
 
-.home__theme {
+.themes__option {
   position: relative;
   display: inline-flex;
   border-radius: 999px;
-  color: var(--text-muted);
+  color: var(--switch-text);
   cursor: pointer;
-  font-size: .8125rem;
+  font-size: .75rem;
   font-weight: 500;
 }
 
-.home__theme input {
+.themes__option input {
   position: absolute;
   opacity: 0;
   width: 100%;
@@ -115,24 +144,37 @@ body {
   cursor: pointer;
 }
 
-.home__theme span {
-  padding: .25rem .875rem;
+.themes__option span {
+  padding: .1875rem .625rem;
   border-radius: 999px;
 }
 
-.home__theme:hover {
+.themes__option:hover {
   color: var(--text);
 }
 
-.home__theme input:checked + span {
+.themes__option input:checked + span {
   background-color: var(--switch-selected);
   color: var(--brand);
   box-shadow: 0 1px 2px rgb(15 23 42 / 20%);
 }
 
-.home__theme input:focus-visible + span {
-  outline: 2px solid var(--brand);
+.themes__option input:focus-visible + span {
+  outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
+}
+
+/* content */
+.home {
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+.home__lead {
+  margin: 0 0 1.5rem;
+  color: var(--text-muted);
+  text-align: center;
 }
 
 .home__links {
@@ -165,6 +207,11 @@ body {
   transform: translateY(-2px);
 }
 
+.home__link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .home__link-icon {
   width: 2rem;
   height: 2rem;
@@ -182,10 +229,17 @@ body {
 }
 
 .home__note {
-  margin-top: 2rem;
+  margin: 1.5rem 0 0;
   color: var(--text-muted);
   font-size: .875rem;
   text-align: center;
+}
+
+@media (width <= 30rem) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 /*
@@ -198,15 +252,18 @@ body {
     color-scheme: dark;
 
     --brand: #a5b4fc;
-    --brand-dark: #4f46e5;
+    --brand-contrast: #4f46e5;
     --surface: #1e293b;
     --surface-muted: #0f172a;
+    --topbar-background: rgb(15 23 42 / 85%);
     --border: #334155;
     --text: #e2e8f0;
     --text-muted: #94a3b8;
     --shadow: 0 1px 3px rgb(0 0 0 / 40%);
     --switch-background: #0b1220;
     --switch-selected: #334155;
+    --switch-text: #cbd5e1;
+    --focus-ring: #a5b4fc;
   }
 }
 
@@ -214,13 +271,16 @@ body {
   color-scheme: dark;
 
   --brand: #a5b4fc;
-  --brand-dark: #4f46e5;
+  --brand-contrast: #4f46e5;
   --surface: #1e293b;
   --surface-muted: #0f172a;
+  --topbar-background: rgb(15 23 42 / 85%);
   --border: #334155;
   --text: #e2e8f0;
   --text-muted: #94a3b8;
   --shadow: 0 1px 3px rgb(0 0 0 / 40%);
   --switch-background: #0b1220;
   --switch-selected: #334155;
+  --switch-text: #cbd5e1;
+  --focus-ring: #a5b4fc;
 }

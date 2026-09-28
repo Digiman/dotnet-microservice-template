@@ -143,7 +143,10 @@ not advertise UIs it does not expose. Its content is configured in `HomePageOpti
 | `Links` | Extra links (title, description, URL, icon, enabled, open in new tab) for anything the configuration above does not cover |
 | `DefaultTheme` | Theme the page starts with: `System` (default), `Light` or `Dark` |
 
-The page ships with a theme switch (`System`, `Light`, `Dark`): the choice is stored in the browser
+The page is a slim top bar (service name, environment badge, theme switch) above the link cards -
+the name is the only heading of the document, so the page stays a single h1.
+
+The theme switch has three positions (`System`, `Light`, `Dark`): the choice is stored in the browser
 and applied by [`wwwroot/js/theme.js`](src/DotNet.ServiceName.Api/wwwroot/js/theme.js) before the
 first paint, so the page never flashes in the wrong theme. The switch is a radio group, so it works
 with the keyboard and screen readers, and while `System` is selected the page follows the operating

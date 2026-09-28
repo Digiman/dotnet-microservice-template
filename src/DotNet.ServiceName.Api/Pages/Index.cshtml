@@ -16,31 +16,38 @@
     <script src="~/js/theme.js" asp-append-version="true"></script>
 </head>
 <body>
-    <main class="home">
-        <header class="home__header">
-            <h1 class="home__title">@Model.Home.Title</h1>
-            @if (!string.IsNullOrWhiteSpace(Model.Home.Description))
-            {
-                <p class="home__lead">@Model.Home.Description</p>
-            }
+    <header class="topbar">
+        <div class="topbar__brand">
+            <img class="topbar__mark" src="~/images/service-mark.svg" alt="" />
+            <h1 class="topbar__title">@Model.Home.Title</h1>
+        </div>
+
+        <div class="topbar__actions">
             @if (Model.Home.ShowEnvironment)
             {
-                <p class="home__badge">@Model.Home.Environment</p>
+                <p class="topbar__badge">@Model.Home.Environment</p>
             }
 
-            <fieldset class="home__themes">
-                <legend class="home__themes-legend">Theme</legend>
+            <fieldset class="themes">
+                <legend class="themes__legend">Theme</legend>
                 @foreach (var theme in new[] { HomePageTheme.System, HomePageTheme.Light, HomePageTheme.Dark })
                 {
                     var value = theme.ToString().ToLowerInvariant();
                     var isChecked = theme == Model.Home.DefaultTheme;
-                    <label class="home__theme">
+                    <label class="themes__option">
                         <input type="radio" name="home-theme" value="@value" checked="@isChecked" />
                         <span>@theme</span>
                     </label>
                 }
             </fieldset>
-        </header>
+        </div>
+    </header>
+
+    <main class="home">
+        @if (!string.IsNullOrWhiteSpace(Model.Home.Description))
+        {
+            <p class="home__lead">@Model.Home.Description</p>
+        }
 
         @if (Model.Home.Links.Count > 0)
         {
@@ -59,10 +66,18 @@
                             {
                                 <span class="home__link-description">@link.Description</span>
                             }
+                            @if (link.OpenInNewTab)
+                            {
+                                <span class="visually-hidden">Opens in a new tab</span>
+                            }
                         </a>
                     </li>
                 }
             </ul>
+        }
+        else
+        {
+            <p class="home__note">This service does not expose any additional endpoints.</p>
         }
 
         @if (Model.Home.DocumentationDisabled)
