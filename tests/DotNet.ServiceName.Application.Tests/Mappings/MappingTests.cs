@@ -1,6 +1,10 @@
 using DotNet.ServiceName.Application.DTOs;
 using DotNet.ServiceName.Application.Models;
 using Facet.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace DotNet.ServiceName.Application.Tests.Mappings;
@@ -23,7 +27,8 @@ public sealed class MappingTests
                 HostingEnvironmentName = "Development",
                 ReleaseDate = new DateTime(2025, 6, 15, 9, 30, 0, DateTimeKind.Utc),
                 AppStartTime = new DateTime(2026, 1, 1, 11, 45, 0, DateTimeKind.Utc),
-                Version = "1.2.3"
+                Version = "1.2.3",
+                Runtime = ".NET 10.0.1"
             }
         };
 
@@ -37,6 +42,7 @@ public sealed class MappingTests
         Assert.Equal(source.AppInfo.ReleaseDate, dto.AppInfo.ReleaseDate);
         Assert.Equal(source.AppInfo.AppStartTime, dto.AppInfo.AppStartTime);
         Assert.Equal(source.AppInfo.Version, dto.AppInfo.Version);
+        Assert.Equal(source.AppInfo.Runtime, dto.AppInfo.Runtime);
     }
 
     [Fact]
@@ -52,5 +58,24 @@ public sealed class MappingTests
 
         Assert.Equal(source.Created, dto.Created);
         Assert.Null(dto.AppInfo);
+    }
+
+    [Theory]
+    [InlineData(typeof(StatusResponse), typeof(StatusResponseDto))]
+    [InlineData(typeof(AppInfo), typeof(AppInfoDto))]
+    public void Dto_ShouldContainAllFields_FromModel(Type modelType, Type dtoType)
+    {
+        var modelProperties = GetPropertyNames(modelType);
+        var dtoProperties = GetPropertyNames(dtoType);
+
+        // all fields from the model must be converted into the DTO - no fields lost during mapping
+        Assert.Subset(new HashSet<string>(dtoProperties), new HashSet<string>(modelProperties));
+    }
+
+    private static IEnumerable<string> GetPropertyNames(Type type)
+    {
+        return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Select(property => property.Name)
+            .OrderBy(name => name);
     }
 }

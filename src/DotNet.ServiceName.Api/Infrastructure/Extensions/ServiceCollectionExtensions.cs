@@ -1,24 +1,35 @@
 using Asp.Versioning;
+using DotNet.ServiceName.Api.Infrastructure.Auth;
 using DotNet.ServiceName.Api.Infrastructure.Configuration;
 using DotNet.ServiceName.Api.Infrastructure.ErrorHandling;
 using DotNet.ServiceName.Api.Infrastructure.HealthCheck;
 using DotNet.ServiceName.Api.Infrastructure.Swagger;
 using DotNet.ServiceName.Application;
+using DotNet.ServiceName.Common.Configuration;
 using DotNet.ServiceName.Common.Extensions;
 using Facet.Dashboard;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Timeouts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading.RateLimiting;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Extensions;
 
@@ -99,10 +110,23 @@ public static class ServiceCollectionExtensions
         // add support for the integration with IHttpContextAccessor
         services.AddHttpContextAccessor();
 
+        // configure API Key authentication for the whole application
+        services.ConfigureApiKeyAuthentication(configuration);
+
+        // configure the CORS policy for the cross-origin browser clients
+        services.ConfigureCors(configuration);
+
+        // configure the global rate limiting policy and the default request timeouts
+        services.ConfigureRateLimiting(configuration);
+        services.ConfigureRequestTimeouts(configuration);
+
+        // configure OpenTelemetry traces and metrics export
+        services.ConfigureTelemetry(configuration);
+
         if (configuration.IsSwaggerEnabled())
         {
             // configure Swagger Gen rules to generate API documentation
-            services.ConfigureSwaggerGeneration();
+            services.ConfigureSwaggerGeneration(configuration);
 
             // register services for the Facet Dashboard - UI with configuration for all facets
             services.AddFacetDashboard(options =>
@@ -122,6 +146,198 @@ public static class ServiceCollectionExtensions
         services.AddHealthChecksConfiguration(configuration);
 
         return services;
+    }
+
+    /// <summary>
+    /// Configure the CORS policy from the application configuration.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        var corsConfig = configuration.GetCorsPolicyConfiguration();
+
+        if (corsConfig is not { Enabled: true })
+        {
+            return services;
+        }
+
+        services.AddCors(options => options.AddPolicy(Constants.CorsPolicyName, policy =>
+        {
+            policy
+                .WithOrigins(corsConfig.AllowedOrigins)
+                .WithMethods(corsConfig.AllowedMethods)
+                .WithHeaders(corsConfig.AllowedHeaders);
+
+            if (corsConfig.AllowCredentials)
+            {
+                policy.AllowCredentials();
+            }
+        }));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configure the global fixed-window rate limiting policy - partitioned by the client IP address.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureRateLimiting(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            // return a standard ProblemDetails payload when the limit is exceeded
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                {
+                    context.HttpContext.Response.Headers.RetryAfter =
+                        ((int)retryAfter.TotalSeconds).ToString(CultureInfo.InvariantCulture);
+                }
+
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                await context.HttpContext.Response.WriteAsJsonAsync(
+                    new ProblemDetails
+                    {
+                        Status = StatusCodes.Status429TooManyRequests,
+                        Title = "Too Many Requests",
+                        Detail = "The request rate limit has been exceeded. Please try again later.",
+                        Type = "https://tools.ietf.org/html/rfc7231#section-6.6.4"
+                    },
+                    options: null,
+                    contentType: "application/problem+json",
+                    cancellationToken: cancellationToken);
+            };
+
+            var rateLimitConfig = configuration.GetRateLimitingConfiguration();
+
+            if (rateLimitConfig is not { Enabled: true })
+            {
+                return;
+            }
+
+            // global limiter applied to all requests - partitioned by the client IP address
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(rateLimitContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: rateLimitContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = rateLimitConfig.PermitLimit,
+                        Window = TimeSpan.FromSeconds(rateLimitConfig.WindowSeconds),
+                        QueueLimit = rateLimitConfig.QueueLimit,
+                        AutoReplenishment = true
+                    }));
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configure the default request timeout applied to the whole request pipeline.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureRequestTimeouts(this IServiceCollection services, IConfiguration configuration)
+    {
+        var timeoutConfig = configuration.GetHttpTimeoutConfiguration() ?? new HttpTimeoutOptions();
+
+        services.AddRequestTimeouts(options =>
+        {
+            options.DefaultPolicy = new RequestTimeoutPolicy
+            {
+                Timeout = TimeSpan.FromSeconds(timeoutConfig.DefaultTimeoutSeconds)
+            };
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configure OpenTelemetry traces and metrics with instrumentation and exporters.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureTelemetry(this IServiceCollection services, IConfiguration configuration)
+    {
+        var telemetryConfig = configuration.GetTelemetryConfiguration();
+
+        if (telemetryConfig is not { Enabled: true })
+        {
+            return services;
+        }
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(
+                serviceName: telemetryConfig.ServiceName,
+                serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString()))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation();
+
+                ConfigureExporters(tracing, telemetryConfig);
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation();
+
+                ConfigureExporters(metrics, telemetryConfig);
+            });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Register the configured exporters on the tracing pipeline.
+    /// </summary>
+    /// <param name="builder">Tracing pipeline builder.</param>
+    /// <param name="telemetryConfig">Telemetry configuration.</param>
+    private static void ConfigureExporters(TracerProviderBuilder builder, TelemetryOptions telemetryConfig)
+    {
+        if (telemetryConfig.ConsoleExporter)
+        {
+            builder.AddConsoleExporter();
+        }
+
+        builder.AddOtlpExporter(exporter =>
+        {
+            if (!string.IsNullOrEmpty(telemetryConfig.OtlpEndpoint))
+            {
+                exporter.Endpoint = new Uri(telemetryConfig.OtlpEndpoint, UriKind.Absolute);
+            }
+        });
+    }
+
+    /// <summary>
+    /// Register the configured exporters on the metrics pipeline.
+    /// </summary>
+    /// <param name="builder">Metrics pipeline builder.</param>
+    /// <param name="telemetryConfig">Telemetry configuration.</param>
+    private static void ConfigureExporters(MeterProviderBuilder builder, TelemetryOptions telemetryConfig)
+    {
+        if (telemetryConfig.ConsoleExporter)
+        {
+            builder.AddConsoleExporter();
+        }
+
+        builder.AddOtlpExporter(exporter =>
+        {
+            if (!string.IsNullOrEmpty(telemetryConfig.OtlpEndpoint))
+            {
+                exporter.Endpoint = new Uri(telemetryConfig.OtlpEndpoint, UriKind.Absolute);
+            }
+        });
     }
 
     /// <summary>
@@ -160,8 +376,9 @@ public static class ServiceCollectionExtensions
     /// Configure Swagger Generation for API docs.
     /// </summary>
     /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
     /// <returns>Returns updates service collection.</returns>
-    private static IServiceCollection ConfigureSwaggerGeneration(this IServiceCollection services)
+    private static IServiceCollection ConfigureSwaggerGeneration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
@@ -177,6 +394,17 @@ public static class ServiceCollectionExtensions
             // add operation filter to generate the OperationId value for endpoints
             options.OperationFilter<SwaggerOperationIdFilter>();
 
+            if (configuration.IsSwaggerAuthEnabled())
+            {
+                var apiKeyConfig = configuration.GetApiKeyConfiguration();
+
+                if (apiKeyConfig is not null)
+                {
+                    // add support for the API Key authorization to be able to call secured endpoints from Swagger UI
+                    options.AddApiKeySupport(apiKeyConfig.HeaderName);
+                }
+            }
+
             // TODO: configure here the list of the XML files with documentation for Swagger!
             // Set the comments path for the Swagger JSON and UI.
             var xmlDocFiles = new[]
@@ -191,6 +419,34 @@ public static class ServiceCollectionExtensions
                 options.IncludeXmlComments(xmlPath);
             }
         });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configure API Key authentication for the application - key value is sent via the configured HTTP header.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureApiKeyAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var apiKeyConfig = configuration.GetApiKeyConfiguration();
+
+        if (apiKeyConfig is null)
+        {
+            return services;
+        }
+
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = ApiKeyAuthenticationHandler.SchemeName;
+                options.DefaultChallengeScheme = ApiKeyAuthenticationHandler.SchemeName;
+            })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, _ => { });
+
+        services.AddAuthorization();
 
         return services;
     }

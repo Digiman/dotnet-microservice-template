@@ -38,7 +38,7 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     var healthCheckConfig = builder.Configuration.GetHealthCheckConfiguration();
 
     // configure Forwarder headers for proxies and Load Balancers
-    appBuilder.ConfigureForwarderOptions();
+    appBuilder.ConfigureForwarderOptions(builder.Configuration);
 
     if (!env.IsEnvironment("Local"))
     {
@@ -55,16 +55,25 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     // add logger for all requests in the web server
     appBuilder.ConfigureSerilog();
 
+    // enable cross-origin requests, rate limiting and request timeouts - all before authentication
+    appBuilder.ConfigureCors(builder.Configuration);
+    appBuilder.UseRateLimiter();
+    appBuilder.UseRequestTimeouts();
+
+    // enable Authentication and Authorization middlewares - API Key is validated for all secured endpoints
+    appBuilder.UseAuthentication();
+    appBuilder.UseAuthorization();
+
     // use default files
     appBuilder.UseDefaultFiles();
 
-    // allow to use static files
+    // allow using static files
     appBuilder.UseStaticFiles();
 
-    // add controllers endpoints
+    // add controller endpoints
     appBuilder.MapControllers();
 
-    // add health checks endpoints and configurations
+    // add health checks, endpoints and configurations
     appBuilder.AddHealthcheckEndpoints(healthCheckConfig);
 
     if (builder.Configuration.IsSwaggerEnabled())
@@ -73,9 +82,16 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
         appBuilder.ConfigureSwagger(appBuilder.DescribeApiVersions());
 
         // configure Scalar API reference as an alternative UI for the same OpenAPI documents
-        appBuilder.AddScalarApiReferenceEndpoint();
+        appBuilder.AddScalarApiReferenceEndpoint(builder.Configuration);
 
         // configure Facet Dashboard page with configuration for all facets
         appBuilder.MapFacetDashboard();
     }
+}
+
+/// <summary>
+/// Marker class to expose the entry point for integration tests (WebApplicationFactory&lt;Program&gt;).
+/// </summary>
+public partial class Program
+{
 }

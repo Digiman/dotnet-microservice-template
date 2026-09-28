@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Serilog;
 using Serilog.Events;
 using System;
+using System.Diagnostics;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Helpers;
 
@@ -30,6 +31,13 @@ public static class LogHelper
         if (endpoint is object) // endpoint != null
         {
             diagnosticContext.Set("EndpointName", endpoint.DisplayName);
+        }
+
+        // correlate the log entry with the OpenTelemetry trace
+        var traceId = Activity.Current?.TraceId.ToString();
+        if (!string.IsNullOrEmpty(traceId))
+        {
+            diagnosticContext.Set("TraceId", traceId);
         }
     }
 
