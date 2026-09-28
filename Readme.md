@@ -95,7 +95,7 @@ The service exposes the following health check endpoints:
 
 ### Dashboard customization
 
-The dashboard is a packaged single page application, so it is themed through a custom stylesheet
+The dashboard is a packaged single page application, so it is themed through a custom style sheet
 that is loaded after its own one. The path is configured relative to `wwwroot`:
 
 ```json
@@ -110,7 +110,7 @@ overrides the CSS custom properties the dashboard declares (colors, fonts, surfa
 dark mode. The logo comes from [`wwwroot/images/healthcheck-logo.svg`](src/DotNet.ServiceName.Api/wwwroot/images/healthcheck-logo.svg)
 through the `--logoImageUrl` property - the default logo of the dashboard is a remote image, so
 replacing it also removes the external request. Use a root relative `url('/images/...')` in the
-stylesheet, because it is served from `/ui/resources/css`. Clear `CustomStylesheet` to fall back to
+style sheet, because it is served from `/ui/resources/css`. Clear `CustomStylesheet` to fall back to
 the dashboard defaults; a configured file that is missing in `wwwroot` is logged as a warning and
 also falls back to the defaults.
 
@@ -139,7 +139,7 @@ not advertise UIs it does not expose. Its content is configured in `HomePageOpti
 | `ShowEnvironment` | Show the name of the current environment as a badge |
 | `ShowDocumentation` | Show Swagger, Scalar and Facet Dashboard links - but only when `SwaggerEnabled` is `true` for the environment. When they are expected and turned off, the page says that the documentation is not available |
 | `ShowHealthChecks` | Show the health status link, plus the dashboard link when the Health Checks UI is enabled |
-| `Links` | Extra links (title, description, url, icon, enabled, open in new tab) for anything the configuration above does not cover |
+| `Links` | Extra links (title, description, URL, icon, enabled, open in new tab) for anything the configuration above does not cover |
 
 Turn the whole page off with `Enabled`, and tune the content per environment - the shipped
 [`appsettings.Production.json`](src/DotNet.ServiceName.Api/appsettings.Production.json) is the sample
