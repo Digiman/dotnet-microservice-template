@@ -83,3 +83,10 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
         appBuilder.MapFacetDashboard();
     }
 }
+
+/// <summary>
+/// Marker class to expose the entry point for integration tests (WebApplicationFactory&lt;Program&gt;).
+/// </summary>
+public partial class Program
+{
+}
