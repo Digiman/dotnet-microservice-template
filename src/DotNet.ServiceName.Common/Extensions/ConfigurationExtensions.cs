@@ -47,4 +47,9 @@ public static class ConfigurationExtensions
     {
         return configuration.GetSection(nameof(HttpTimeoutOptions)).Get<HttpTimeoutOptions>();
     }
+
+    public static TelemetryOptions? GetTelemetryConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(TelemetryOptions)).Get<TelemetryOptions>();
+    }
 }

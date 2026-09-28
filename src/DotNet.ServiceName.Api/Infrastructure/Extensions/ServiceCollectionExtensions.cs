@@ -18,6 +18,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Globalization;
@@ -115,6 +119,9 @@ public static class ServiceCollectionExtensions
         // configure the global rate limiting policy and the default request timeouts
         services.ConfigureRateLimiting(configuration);
         services.ConfigureRequestTimeouts(configuration);
+
+        // configure OpenTelemetry traces and metrics export
+        services.ConfigureTelemetry(configuration);
 
         if (configuration.IsSwaggerEnabled())
         {
@@ -249,6 +256,88 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// Configure OpenTelemetry traces and metrics with instrumentation and exporters.
+    /// </summary>
+    /// <param name="services">Services collection.</param>
+    /// <param name="configuration">Configuration of the whole application.</param>
+    /// <returns>Returns updates service collection.</returns>
+    private static IServiceCollection ConfigureTelemetry(this IServiceCollection services, IConfiguration configuration)
+    {
+        var telemetryConfig = configuration.GetTelemetryConfiguration();
+
+        if (telemetryConfig is not { Enabled: true })
+        {
+            return services;
+        }
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(
+                serviceName: telemetryConfig.ServiceName,
+                serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString()))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation();
+
+                ConfigureExporters(tracing, telemetryConfig);
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation();
+
+                ConfigureExporters(metrics, telemetryConfig);
+            });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Register the configured exporters on the tracing pipeline.
+    /// </summary>
+    /// <param name="builder">Tracing pipeline builder.</param>
+    /// <param name="telemetryConfig">Telemetry configuration.</param>
+    private static void ConfigureExporters(TracerProviderBuilder builder, TelemetryOptions telemetryConfig)
+    {
+        if (telemetryConfig.ConsoleExporter)
+        {
+            builder.AddConsoleExporter();
+        }
+
+        builder.AddOtlpExporter(exporter =>
+        {
+            if (!string.IsNullOrEmpty(telemetryConfig.OtlpEndpoint))
+            {
+                exporter.Endpoint = new Uri(telemetryConfig.OtlpEndpoint, UriKind.Absolute);
+            }
+        });
+    }
+
+    /// <summary>
+    /// Register the configured exporters on the metrics pipeline.
+    /// </summary>
+    /// <param name="builder">Metrics pipeline builder.</param>
+    /// <param name="telemetryConfig">Telemetry configuration.</param>
+    private static void ConfigureExporters(MeterProviderBuilder builder, TelemetryOptions telemetryConfig)
+    {
+        if (telemetryConfig.ConsoleExporter)
+        {
+            builder.AddConsoleExporter();
+        }
+
+        builder.AddOtlpExporter(exporter =>
+        {
+            if (!string.IsNullOrEmpty(telemetryConfig.OtlpEndpoint))
+            {
+                exporter.Endpoint = new Uri(telemetryConfig.OtlpEndpoint, UriKind.Absolute);
+            }
+        });
     }
 
     /// <summary>

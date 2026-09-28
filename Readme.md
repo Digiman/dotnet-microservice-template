@@ -32,6 +32,7 @@ Application developed and used next technologies (on the backend) and components
 * .NET 10 (LTS) - see [`global.json`](global.json) for the pinned SDK version
 * API Key authentication (custom handler) with Swagger UI / Scalar integration
 * [Serilog](https://github.com/serilog/serilog) for logging
+* [OpenTelemetry](https://opentelemetry.io/) for traces and metrics (OTLP export)
 * [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) for Swagger (OpenAPI)
 * [Scalar](https://scalar.com/) for an alternative interactive API reference UI ([Scalar.AspNetCore](https://www.nuget.org/packages/Scalar.AspNetCore))
 * [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) for API versioning (URL segment based)
@@ -140,6 +141,25 @@ Every request is bounded by a default timeout - slow or stuck handlers are abort
 ```
 
 Per-endpoint overrides can be added later with the `[RequestTimeout]` attribute.
+
+## Telemetry (OpenTelemetry)
+
+Traces and metrics are collected with [OpenTelemetry](https://opentelemetry.io/) and exported
+over OTLP. When `OtlpEndpoint` is empty, the standard `OTEL_EXPORTER_OTLP_*` environment
+variables are honored (default endpoint: `http://localhost:4317`):
+
+```json
+"TelemetryOptions": {
+  "Enabled": true,
+  "ServiceName": "dotnet-servicename",
+  "ConsoleExporter": false
+}
+```
+
+Instrumented out of the box: incoming ASP.NET Core requests, outgoing `HttpClient` calls, and
+runtime metrics (GC, threads, memory). Set `ConsoleExporter` to `true` to print telemetry
+locally without a collector. Every Serilog request entry also carries the `TraceId`, so logs
+can be correlated with the corresponding trace.
 
 ## Running behind a proxy / load balancer
 

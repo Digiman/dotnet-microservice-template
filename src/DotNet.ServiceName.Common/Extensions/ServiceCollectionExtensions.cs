@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddWithValidation<CorsPolicyOptions>(nameof(CorsPolicyOptions));
         services.AddWithValidation<RateLimitingOptions>(nameof(RateLimitingOptions));
         services.AddWithValidation<HttpTimeoutOptions>(nameof(HttpTimeoutOptions));
+        services.AddWithValidation<TelemetryOptions>(nameof(TelemetryOptions));
     }
 
     /// <summary>
@@ -33,5 +34,6 @@ public static class ServiceCollectionExtensions
         services.AddWithValidation<CorsPolicyOptions, CorsPolicyOptionsValidator>(nameof(CorsPolicyOptions));
         services.AddWithValidation<RateLimitingOptions, RateLimitingOptionsValidator>(nameof(RateLimitingOptions));
         services.AddWithValidation<HttpTimeoutOptions, HttpTimeoutOptionsValidator>(nameof(HttpTimeoutOptions));
+        services.AddWithValidation<TelemetryOptions, TelemetryOptionsValidator>(nameof(TelemetryOptions));
     }
 }
