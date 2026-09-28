@@ -10,7 +10,7 @@ namespace DotNet.ServiceName.Api.Tests.Infrastructure;
 /// <summary>
 /// Boots the API in-process for integration tests using the "Local" environment configuration.
 /// </summary>
-public sealed class ApiTestFactory : WebApplicationFactory<Program>
+public class ApiTestFactory : WebApplicationFactory<Program>
 {
     /// <summary>
     /// API key configured for the Local environment (appsettings.json).
@@ -41,9 +41,12 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>
         {
             // the health check UI runs a background collector polling itself over HTTP -
             // skip it in tests, the raw health endpoints are still covered
+            // the rate limit is raised far above what the test suite sends, so the shared
+            // integration tests never trip the global limiter (see RateLimitingTests)
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["HealthCheckOptions:HealthCheckUiEnabled"] = "false"
+                ["HealthCheckOptions:HealthCheckUiEnabled"] = "false",
+                ["RateLimitingOptions:PermitLimit"] = "10000"
             });
         });
 

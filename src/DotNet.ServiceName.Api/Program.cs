@@ -55,6 +55,11 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     // add logger for all requests in the web server
     appBuilder.ConfigureSerilog();
 
+    // enable cross-origin requests, rate limiting and request timeouts - all before authentication
+    appBuilder.ConfigureCors(builder.Configuration);
+    appBuilder.UseRateLimiter();
+    appBuilder.UseRequestTimeouts();
+
     // enable Authentication and Authorization middlewares - API Key is validated for all secured endpoints
     appBuilder.UseAuthentication();
     appBuilder.UseAuthorization();

@@ -58,14 +58,14 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions
         {
             Predicate = (check) => check.Tags.Contains("ready")
-        });
+        }).DisableRateLimiting();
 
         // all health checks here with details
         endpoints.MapHealthChecks("/health", new HealthCheckOptions
         {
             Predicate = _ => true,
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-        });
+        }).DisableRateLimiting();
 
         // add custom health checks
         // Readiness endpoint
@@ -80,7 +80,7 @@ public static class EndpointRouteBuilderExtensions
             Predicate = (check) => check.Tags.Contains("ready"),
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
             AllowCachingResponses = false
-        });
+        }).DisableRateLimiting();
 
         // Liveness endpoint
         endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
@@ -88,6 +88,6 @@ public static class EndpointRouteBuilderExtensions
             Predicate = (check) => !check.Tags.Contains("ready"),
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
             AllowCachingResponses = false
-        });
+        }).DisableRateLimiting();
     }
 }

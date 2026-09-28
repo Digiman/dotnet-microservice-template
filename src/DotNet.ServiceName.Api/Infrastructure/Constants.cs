@@ -36,4 +36,9 @@ public readonly struct Constants
     /// Url to the company main website.
     /// </summary>
     public const string CompanyUrl = "https://www.companyname.net/";
+
+    /// <summary>
+    /// Name of the CORS policy.
+    /// </summary>
+    public const string CorsPolicyName = "CorsPolicy";
 }

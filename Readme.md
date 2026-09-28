@@ -95,6 +95,52 @@ HSTS (365 days, subdomains included), CSP, `X-Frame-Options`, `X-Content-Type-Op
 `Referrer-Policy`, Permissions-Policy, and Cross-Origin policies. See
 `ApplicationBuilderExtensions.ConfigureSecurityHeaders` for the configured policy.
 
+## CORS
+
+Cross-origin requests are allowed for the origins listed in configuration. The policy answers
+preflight (`OPTIONS`) requests before authentication, so browser clients can send the API key
+header without an extra round trip:
+
+```json
+"CorsPolicyOptions": {
+  "Enabled": true,
+  "AllowedOrigins": [ "http://localhost:4200", "http://localhost:3000" ],
+  "AllowCredentials": false
+}
+```
+
+HTTP methods and allowed headers default to the common REST verbs and `*` - see
+`CorsPolicyOptions` for the full list of settings.
+
+## Rate limiting
+
+A global fixed-window limiter protects the API from request floods, partitioned by the client
+IP address (after forwarded headers are processed). Requests over the limit get `429 Too Many
+Requests` with a ProblemDetails body and a `Retry-After` header. Health check endpoints are
+exempt so monitoring probes are never throttled:
+
+```json
+"RateLimitingOptions": {
+  "Enabled": true,
+  "PermitLimit": 100,
+  "WindowSeconds": 60,
+  "QueueLimit": 0
+}
+```
+
+## Request timeouts
+
+Every request is bounded by a default timeout - slow or stuck handlers are aborted with
+`503 Service Unavailable` instead of holding connections open:
+
+```json
+"HttpTimeoutOptions": {
+  "DefaultTimeoutSeconds": 30
+}
+```
+
+Per-endpoint overrides can be added later with the `[RequestTimeout]` attribute.
+
 ## Running behind a proxy / load balancer
 
 Forwarded headers are processed, but only a loopback proxy is trusted by default so clients

@@ -32,4 +32,19 @@ public static class ConfigurationExtensions
     {
         return configuration.GetSection(nameof(ApiKeyOptions)).Get<ApiKeyOptions>();
     }
+
+    public static CorsPolicyOptions? GetCorsPolicyConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(CorsPolicyOptions)).Get<CorsPolicyOptions>();
+    }
+
+    public static RateLimitingOptions? GetRateLimitingConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(RateLimitingOptions)).Get<RateLimitingOptions>();
+    }
+
+    public static HttpTimeoutOptions? GetHttpTimeoutConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(HttpTimeoutOptions)).Get<HttpTimeoutOptions>();
+    }
 }

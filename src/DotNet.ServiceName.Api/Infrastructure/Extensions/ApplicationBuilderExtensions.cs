@@ -1,5 +1,6 @@
 using Asp.Versioning.ApiExplorer;
 using DotNet.ServiceName.Api.Infrastructure.Helpers;
+using DotNet.ServiceName.Common.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
@@ -94,6 +95,28 @@ public static class ApplicationBuilderExtensions
         }
 
         app.UseForwardedHeaders(forwardedHeadersOptions);
+
+        return app;
+    }
+
+    /// <summary>
+    /// Enable the configured CORS policy for the cross-origin browser clients.
+    /// </summary>
+    /// <param name="app">Application builder.</param>
+    /// <param name="configuration">Application configuration.</param>
+    /// <returns>Returns updated object with application builder.</returns>
+    /// <remarks>
+    /// Registered before the authentication middleware so the preflight (OPTIONS) requests
+    /// are answered without challenging for credentials.
+    /// </remarks>
+    public static IApplicationBuilder ConfigureCors(this IApplicationBuilder app, IConfiguration configuration)
+    {
+        var corsConfig = configuration.GetCorsPolicyConfiguration();
+
+        if (corsConfig is { Enabled: true })
+        {
+            app.UseCors(Constants.CorsPolicyName);
+        }
 
         return app;
     }
