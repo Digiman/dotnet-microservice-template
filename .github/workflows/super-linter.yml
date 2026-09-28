@@ -58,6 +58,7 @@ jobs:
           VALIDATE_CSS: false
           # Prettier style is not enforced for any language in this repository, see the note above.
           VALIDATE_CSS_PRETTIER: false
+          VALIDATE_JAVASCRIPT_PRETTIER: false
           # Prettier style is not enforced; plain JSON/YAML/HTML syntax validation stays enabled.
           VALIDATE_HTML_PRETTIER: false
           VALIDATE_JSON_PRETTIER: false
