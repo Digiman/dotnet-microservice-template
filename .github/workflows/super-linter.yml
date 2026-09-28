@@ -52,6 +52,10 @@ jobs:
           VALIDATE_DOTNET_SLN_FORMAT_ANALYZERS: false
           VALIDATE_DOTNET_SLN_FORMAT_STYLE: false
           VALIDATE_DOTNET_SLN_FORMAT_WHITESPACE: false
+          # Stylelint's `standard` config rejects the camelCase CSS custom properties and the
+          # BEM style class names of the packaged Health Checks UI dashboard and Scalar, which the
+          # custom theme stylesheet in src/DotNet.ServiceName.Api/wwwroot/css has to override.
+          VALIDATE_CSS: false
           # Prettier style is not enforced; plain JSON/YAML/HTML syntax validation stays enabled.
           VALIDATE_HTML_PRETTIER: false
           VALIDATE_JSON_PRETTIER: false

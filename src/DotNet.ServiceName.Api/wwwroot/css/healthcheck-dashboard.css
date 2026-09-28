@@ -1,0 +1,114 @@
+/*
+ * Custom theme for the Health Checks UI dashboard.
+ *
+ * The dashboard is a packaged single page application, so the supported way to restyle it is
+ * through the CSS custom properties it declares in its own stylesheet. This file is registered
+ * with `AddCustomStylesheet` (see `HealthCheckOptions:CustomStylesheet`) and is served by the
+ * UI after its base stylesheet, so every value below wins over the default theme.
+ *
+ * The logo is an SVG kept in wwwroot/images - reference it with a root relative url because the
+ * stylesheet itself is served from /ui/resources/css.
+ */
+
+:root {
+  /* brand palette */
+  --primaryColor: #4f46e5;
+  --secondaryColor: #4338ca;
+  --successColor: #059669;
+  --warningColor: #d97706;
+  --dangerColor: #dc2626;
+
+  /* surfaces and text */
+  --darkColor: #111827;
+  --midDarkColor: #1f2937;
+  --grayColor: #374151;
+  --midGrayColor: #e5e7eb;
+  --lightColor: #f9fafb;
+  --bgSecondary: #fff;
+
+  /* the dashboard logo - replaces the default remote GitHub avatar */
+  --logoImageUrl: url('/images/healthcheck-logo.svg');
+  --ffBase: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+body {
+  background-color: var(--lightColor);
+  font-size: .9375rem;
+}
+
+/* logo and navigation aside */
+.hc-aside {
+  background-color: var(--midDarkColor);
+  box-shadow: 2px 0 8px rgb(17 24 39 / 15%);
+}
+
+.hc-aside__logo {
+  background-color: var(--bgSecondary);
+  box-shadow: 0 0 0 2px var(--primaryColor);
+}
+
+.hc-aside-menu__item:hover,
+.hc-aside-menu__item--active {
+  border-color: var(--primaryColor);
+  background-color: var(--darkColor);
+}
+
+/* main content area */
+.hc-section-router {
+  padding: 1.5rem 2rem;
+}
+
+h1 {
+  color: var(--darkColor);
+  font-size: 1.375rem;
+}
+
+/* buttons */
+.hc-button {
+  border-radius: 4px;
+  background-color: var(--primaryColor);
+  font-weight: 500;
+}
+
+.hc-button:hover {
+  background-color: var(--secondaryColor);
+}
+
+/* checks table */
+.hc-table__head {
+  color: var(--grayColor);
+  letter-spacing: .04em;
+}
+
+.hc-checks-table__header th {
+  background-color: #eef2ff;
+  color: var(--midDarkColor);
+}
+
+.hc-checks-table__row:hover {
+  background-color: var(--primaryColor);
+}
+
+/* status tags */
+.tag {
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
+/* liveness details panel */
+.hc-liveness-panel {
+  border-left: 1px solid var(--midGrayColor);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --grayColor: #e5e7eb;
+    --midGrayColor: #374151;
+    --lightColor: #111827;
+    --bgSecondary: #1f2937;
+  }
+
+  .hc-checks-table__header th {
+    background-color: #1e1b4b;
+  }
+}

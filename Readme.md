@@ -93,6 +93,27 @@ The service exposes the following health check endpoints:
 | `/health/live` | Liveness endpoint |
 | `/healthcheck-dashboard` | Health Checks UI dashboard (when enabled in configuration) |
 
+### Dashboard customization
+
+The dashboard is a packaged single page application, so it is themed through a custom stylesheet
+that is loaded after its own one. The path is configured relative to `wwwroot`:
+
+```json
+"HealthCheckOptions": {
+  "HeaderText": "Simple Service - Health Checks Status",
+  "CustomStylesheet": "css/healthcheck-dashboard.css"
+}
+```
+
+[`wwwroot/css/healthcheck-dashboard.css`](src/DotNet.ServiceName.Api/wwwroot/css/healthcheck-dashboard.css)
+overrides the CSS custom properties the dashboard declares (colors, fonts, surfaces) and adds a
+dark mode. The logo comes from [`wwwroot/images/healthcheck-logo.svg`](src/DotNet.ServiceName.Api/wwwroot/images/healthcheck-logo.svg)
+through the `--logoImageUrl` property - the default logo of the dashboard is a remote image, so
+replacing it also removes the external request. Use a root relative `url('/images/...')` in the
+stylesheet, because it is served from `/ui/resources/css`. Clear `CustomStylesheet` to fall back to
+the dashboard defaults; a configured file that is missing in `wwwroot` is logged as a warning and
+also falls back to the defaults.
+
 ## Security headers
 
 Non-development environments get a set of security headers applied by

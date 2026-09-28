@@ -3,10 +3,13 @@ using DotNet.ServiceName.Common.Extensions;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Scalar.AspNetCore;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Extensions;
@@ -45,12 +48,32 @@ public static class EndpointRouteBuilderExtensions
     {
         if (healthCheckConfig is { HealthCheckUiEnabled: true })
         {
+            var environment = endpoints.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+            var logger = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(
+                typeof(EndpointRouteBuilderExtensions));
+
             // add Health Check UI
             endpoints.MapHealthChecksUI(config =>
             {
-                // TODO: add here custom styles and logic for Health Check dashboard if needed
-                // config.AddCustomStylesheet("wwwroot/styles/healthcheck-style.css");
                 config.UIPath = "/healthcheck-dashboard";
+                config.PageTitle = healthCheckConfig.HeaderText;
+
+                // the dashboard is a packaged single page application - it only accepts a custom
+                // stylesheet as a physical file, so resolve the configured wwwroot relative path
+                if (!string.IsNullOrWhiteSpace(healthCheckConfig.CustomStylesheet))
+                {
+                    var stylesheet = environment.WebRootFileProvider.GetFileInfo(healthCheckConfig.CustomStylesheet);
+                    if (stylesheet.Exists && !string.IsNullOrEmpty(stylesheet.PhysicalPath))
+                    {
+                        config.AddCustomStylesheet(stylesheet.PhysicalPath);
+                    }
+                    else
+                    {
+                        logger.LogWarning(
+                            "Custom health check dashboard stylesheet '{Stylesheet}' was not found in wwwroot - dashboard defaults are used",
+                            healthCheckConfig.CustomStylesheet);
+                    }
+                }
             });
         }
 
