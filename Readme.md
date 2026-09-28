@@ -9,7 +9,8 @@
 This repository is a template for a .NET microservice. It contains a single Web API project
 (`DotNet.ServiceName.Api`) with a layered structure (Application, Common), API versioning,
 API Key authentication, Swagger/OpenAPI documentation, structured logging, health checks with
-a dashboard, and a Docker setup for local development.
+a dashboard, CORS, rate limiting, request timeouts, OpenTelemetry traces and metrics, and a
+Docker setup for local development.
 
 ### Project structure
 
@@ -19,7 +20,8 @@ src/
   DotNet.ServiceName.Application/  # Business logic, DTOs/facets, service registrations
   DotNet.ServiceName.Common/       # Shared configuration options and extension helpers
 tests/
-  DotNet.ServiceName.Application.Tests/  # xUnit tests (services, mappings, DI)
+  DotNet.ServiceName.Application.Tests/  # xUnit unit tests (services, mappings, DI)
+  DotNet.ServiceName.Api.Tests/          # xUnit integration tests (WebApplicationFactory)
 ```
 
 Rename `DotNet.ServiceName` to your service name across the solution, project folders,
@@ -38,11 +40,12 @@ Application developed and used next technologies (on the backend) and components
 * [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) for API versioning (URL segment based)
 * [Facet](https://github.com/Tim-Maes/Facet) for compile-time generated DTOs and mapping (no runtime reflection), with [Facet.Extensions](https://www.nuget.org/packages/Facet.Extensions) helpers (`ToFacet`) and a [Facet.Dashboard](https://www.nuget.org/packages/Facet.Dashboard) page (`/facets`) to inspect all facets
 * HealthCheck UI for ASP.NET Core - [DotNetDiag HealthChecks for ASP.NET Core Diagnostics Package](https://github.com/DotNetDiag/HealthChecks)
+* xUnit + `WebApplicationFactory` for unit and integration tests
 * Central Package Management via [`Directory.Packages.props`](Directory.Packages.props)
 
 ## Logging
 
-Service/web application use Serilog to write and generate structure logs with details how application working. It's possible to configure logs to send to the different services like Splunk to monitor in one single place or use other tools to read the logs. Depending on hosting type and where the service wil be placed.
+Service/web application use Serilog to write and generate structure logs with details how application working. It's possible to configure logs to send to the different services like Splunk to monitor in one single place or use other tools to read the logs. Depending on hosting type and where the service wil be placed. Request log entries carry the `TraceId`, so they can be correlated with the corresponding OpenTelemetry trace.
 
 ## Authentication (API Key)
 
@@ -74,7 +77,9 @@ Key points:
 
 ## Monitoring
 
-No any monitoring tools/services are available in the service at this time.
+Traces and metrics are exported via OpenTelemetry (OTLP) - see the
+[Telemetry](#telemetry-opentelemetry) section. Point the exporter at a collector such as
+Jaeger, Grafana Tempo, or an observability platform to store and visualize them.
 
 ## Availability and Health check
 
@@ -171,6 +176,27 @@ IP address in configuration:
 "ForwardedHeaders": {
   "KnownProxies": ["10.0.0.5"]
 }
+```
+
+## Tests
+
+Two xUnit projects cover the solution (40 tests in total):
+
+* `DotNet.ServiceName.Application.Tests` - unit tests for services, DTO mapping and DI
+  registration (NSubstitute for mocks).
+* `DotNet.ServiceName.Api.Tests` - integration tests that boot the whole API in-process with
+  `WebApplicationFactory`: API Key authentication (401/403/200), ProblemDetails responses,
+  CORS policy (preflight, allowed and disallowed origins), rate limiting (429 with
+  ProblemDetails, health endpoints exempt), health check endpoints, OpenAPI document, and
+  telemetry wiring.
+
+```bash
+# run everything
+dotnet test DotNet.ServiceName.sln
+
+# run a single project or filter by name
+dotnet test tests/DotNet.ServiceName.Api.Tests
+dotnet test --filter "FullyQualifiedName~RateLimiting"
 ```
 
 ## Build Process for Local Development
