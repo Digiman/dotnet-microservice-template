@@ -1,3 +1,5 @@
+using DotNet.ServiceName.Common.Configuration;
+
 namespace DotNet.ServiceName.Api.Infrastructure.Models;
 
 /// <summary>
@@ -35,6 +37,11 @@ public sealed class HomePageModel
     /// instead of silently showing fewer links.
     /// </summary>
     public bool DocumentationDisabled { get; init; }
+
+    /// <summary>
+    /// Theme the page starts with, before the visitor picks one.
+    /// </summary>
+    public HomePageTheme DefaultTheme { get; init; }
 }
 
 /// <summary>

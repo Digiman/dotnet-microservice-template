@@ -106,8 +106,9 @@ that is loaded after its own one. The path is configured relative to `wwwroot`:
 ```
 
 [`wwwroot/css/healthcheck-dashboard.css`](src/DotNet.ServiceName.Api/wwwroot/css/healthcheck-dashboard.css)
-overrides the CSS custom properties the dashboard declares (colors, fonts, surfaces) and adds a
-dark mode. The logo comes from [`wwwroot/images/healthcheck-logo.svg`](src/DotNet.ServiceName.Api/wwwroot/images/healthcheck-logo.svg)
+overrides the CSS custom properties the dashboard declares (colors, fonts, surfaces) and follows the
+system theme with a dark palette. Every text and background pair it introduces is checked for at
+least WCAG AA contrast (4.5:1) in both palettes - keep it that way when changing a color. The logo comes from [`wwwroot/images/healthcheck-logo.svg`](src/DotNet.ServiceName.Api/wwwroot/images/healthcheck-logo.svg)
 through the `--logoImageUrl` property - the default logo of the dashboard is a remote image, so
 replacing it also removes the external request. Use a root relative `url('/images/...')` in the
 style sheet, because it is served from `/ui/resources/css`. Clear `CustomStylesheet` to fall back to
@@ -140,6 +141,13 @@ not advertise UIs it does not expose. Its content is configured in `HomePageOpti
 | `ShowDocumentation` | Show Swagger, Scalar and Facet Dashboard links - but only when `SwaggerEnabled` is `true` for the environment. When they are expected and turned off, the page says that the documentation is not available |
 | `ShowHealthChecks` | Show the health status link, plus the dashboard link when the Health Checks UI is enabled |
 | `Links` | Extra links (title, description, URL, icon, enabled, open in new tab) for anything the configuration above does not cover |
+| `DefaultTheme` | Theme the page starts with: `System` (default), `Light` or `Dark` |
+
+The page ships with a theme switch (`System`, `Light`, `Dark`): the choice is stored in the browser
+and applied by [`wwwroot/js/theme.js`](src/DotNet.ServiceName.Api/wwwroot/js/theme.js) before the
+first paint, so the page never flashes in the wrong theme. The switch is a radio group, so it works
+with the keyboard and screen readers, and while `System` is selected the page follows the operating
+system when its theme changes. `DefaultTheme` only sets where the switch starts.
 
 Turn the whole page off with `Enabled`, and tune the content per environment - the shipped
 [`appsettings.Production.json`](src/DotNet.ServiceName.Api/appsettings.Production.json) is the sample

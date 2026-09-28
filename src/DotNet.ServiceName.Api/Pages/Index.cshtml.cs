@@ -59,7 +59,8 @@ public sealed class IndexModel(IConfiguration configuration, IWebHostEnvironment
             Environment = environment.EnvironmentName,
             ShowEnvironment = options.ShowEnvironment,
             Links = links,
-            DocumentationDisabled = options.ShowDocumentation && !documentationEnabled
+            DocumentationDisabled = options.ShowDocumentation && !documentationEnabled,
+            DefaultTheme = options.DefaultTheme
         };
     }
 }

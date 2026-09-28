@@ -6,27 +6,35 @@
  * with `AddCustomStylesheet` (see `HealthCheckOptions:CustomStylesheet`) and is served by the
  * UI after its base stylesheet, so every value below wins over the default theme.
  *
+ * Every text and background pair used by the dashboard is checked for at least WCAG AA contrast
+ * (4.5:1) in both the light and the dark palette - keep it that way when changing a color.
+ *
  * The logo is an SVG kept in wwwroot/images - reference it with a root relative url because the
  * stylesheet itself is served from /ui/resources/css.
  */
 
 :root {
-  /* brand palette */
-  --primaryColor: #4f46e5;
-  --secondaryColor: #4338ca;
-  --successColor: #059669;
-  --warningColor: #d97706;
-  --dangerColor: #dc2626;
+  color-scheme: light;
+
+  /* brand palette - dark enough for text and icons on a light surface */
+  --primaryColor: #4338ca;
+  --secondaryColor: #3730a3;
+  --successColor: #047857;
+  --warningColor: #b45309;
+  --dangerColor: #b91c1c;
 
   /* surfaces and text */
-  --darkColor: #111827;
-  --midDarkColor: #1f2937;
-  --grayColor: #374151;
-  --midGrayColor: #e5e7eb;
-  --lightColor: #f9fafb;
+  --darkColor: #0f172a;
+  --midDarkColor: #1e293b;
+  --grayColor: #334155;
+  --midGrayColor: #cbd5e1;
+  --lightColor: #f8fafc;
   --bgSecondary: #fff;
 
-  /* the dashboard logo - replaces the default remote GitHub avatar */
+  /* the dashboard does not declare these, they are used by the overrides further down */
+  --mutedText: #64748b;
+  --tableHeaderBackground: #e2e8f0;
+  --tableHeaderText: #1e293b;
   --logoImageUrl: url('/images/healthcheck-logo.svg');
   --ffBase: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
@@ -34,12 +42,13 @@
 body {
   background-color: var(--lightColor);
   font-size: .9375rem;
+  line-height: 1.5;
 }
 
 /* logo and navigation aside */
 .hc-aside {
   background-color: var(--midDarkColor);
-  box-shadow: 2px 0 8px rgb(17 24 39 / 15%);
+  box-shadow: 2px 0 8px rgb(15 23 42 / 15%);
 }
 
 .hc-aside__logo {
@@ -47,10 +56,15 @@ body {
   box-shadow: 0 0 0 2px var(--primaryColor);
 }
 
+.hc-aside-menu__item {
+  color: #f1f5f9;
+}
+
 .hc-aside-menu__item:hover,
 .hc-aside-menu__item--active {
   border-color: var(--primaryColor);
   background-color: var(--darkColor);
+  color: #fff;
 }
 
 /* main content area */
@@ -66,12 +80,13 @@ h1 {
 /* buttons */
 .hc-button {
   border-radius: 4px;
-  background-color: var(--primaryColor);
+  background-color: var(--secondaryColor);
+  color: #fff;
   font-weight: 500;
 }
 
 .hc-button:hover {
-  background-color: var(--secondaryColor);
+  background-color: var(--darkColor);
 }
 
 /* checks table */
@@ -81,18 +96,31 @@ h1 {
 }
 
 .hc-checks-table__header th {
-  background-color: #eef2ff;
-  color: var(--midDarkColor);
+  background-color: var(--tableHeaderBackground);
+  color: var(--tableHeaderText);
 }
 
 .hc-checks-table__row:hover {
   background-color: var(--primaryColor);
+  background-image: none;
+}
+
+.hc-checks-table__row:hover td {
+  color: #fff;
 }
 
 /* status tags */
 .tag {
   border-radius: 10px;
   padding: 2px 8px;
+  font-size: .6875rem;
+  font-weight: 600;
+}
+
+/* secondary text, for example the timestamp next to a check */
+.hc-timeline__event span,
+.hc-liveness__header span {
+  color: var(--mutedText);
 }
 
 /* liveness details panel */
@@ -102,13 +130,41 @@ h1 {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --grayColor: #e5e7eb;
-    --midGrayColor: #374151;
-    --lightColor: #111827;
-    --bgSecondary: #1f2937;
+    color-scheme: dark;
+
+    /* light brand colors - on a dark surface the readable direction flips */
+    --primaryColor: #a5b4fc;
+    --secondaryColor: #4f46e5;
+    --successColor: #34d399;
+    --warningColor: #fbbf24;
+    --dangerColor: #f87171;
+
+    --darkColor: #020617;
+    --midDarkColor: #1e293b;
+    --grayColor: #e2e8f0;
+    --midGrayColor: #334155;
+    --lightColor: #0f172a;
+    --bgSecondary: #1e293b;
+
+    --mutedText: #94a3b8;
+    --tableHeaderBackground: #334155;
+    --tableHeaderText: #f1f5f9;
   }
 
-  .hc-checks-table__header th {
-    background-color: #1e1b4b;
+  .hc-aside {
+    background-color: var(--midDarkColor);
+  }
+
+  /* the status tags carry dark text on the light brand colors now */
+  .tag {
+    color: #0f172a;
+  }
+
+  .hc-button {
+    color: #fff;
+  }
+
+  .hc-liveness-panel {
+    background-color: var(--bgSecondary);
   }
 }

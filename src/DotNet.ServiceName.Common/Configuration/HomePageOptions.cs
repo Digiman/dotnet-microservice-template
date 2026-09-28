@@ -43,10 +43,37 @@ public sealed class HomePageOptions
     public bool ShowHealthChecks { get; set; } = true;
 
     /// <summary>
+    /// Theme the home page starts with. The visitor can still switch between the system theme,
+    /// light and dark - the choice is stored in the browser, not in the service configuration.
+    /// </summary>
+    public HomePageTheme DefaultTheme { get; set; } = HomePageTheme.System;
+
+    /// <summary>
     /// Additional links rendered on the page - use them for anything the service exposes that is
     /// not derived from the configuration above (a company portal, a runbook, a mailbox, ...).
     /// </summary>
     public List<HomePageLinkOptions> Links { get; set; } = [];
+}
+
+/// <summary>
+/// Theme the home page is rendered with.
+/// </summary>
+public enum HomePageTheme
+{
+    /// <summary>
+    /// Follow the theme of the operating system or the browser.
+    /// </summary>
+    System,
+
+    /// <summary>
+    /// Always the light theme.
+    /// </summary>
+    Light,
+
+    /// <summary>
+    /// Always the dark theme.
+    /// </summary>
+    Dark
 }
 
 /// <summary>

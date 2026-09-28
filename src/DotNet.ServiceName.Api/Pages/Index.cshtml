@@ -1,13 +1,19 @@
 @page
+@using DotNet.ServiceName.Common.Configuration
 @model IndexModel
+@{
+    var selectedTheme = Model.Home.DefaultTheme.ToString().ToLowerInvariant();
+}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme-default="@selectedTheme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@Model.Home.Title</title>
     <link rel="icon" href="~/favicon.ico" />
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    @* applied before the first paint, so the page never flashes in the wrong theme *@
+    <script src="~/js/theme.js" asp-append-version="true"></script>
 </head>
 <body>
     <main class="home">
@@ -21,6 +27,19 @@
             {
                 <p class="home__badge">@Model.Home.Environment</p>
             }
+
+            <fieldset class="home__themes">
+                <legend class="home__themes-legend">Theme</legend>
+                @foreach (var theme in new[] { HomePageTheme.System, HomePageTheme.Light, HomePageTheme.Dark })
+                {
+                    var value = theme.ToString().ToLowerInvariant();
+                    var isChecked = theme == Model.Home.DefaultTheme;
+                    <label class="home__theme">
+                        <input type="radio" name="home-theme" value="@value" checked="@isChecked" />
+                        <span>@theme</span>
+                    </label>
+                }
+            </fieldset>
         </header>
 
         @if (Model.Home.Links.Count > 0)

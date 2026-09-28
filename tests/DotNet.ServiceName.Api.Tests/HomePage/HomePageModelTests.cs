@@ -1,5 +1,6 @@
 using DotNet.ServiceName.Api.Pages;
 using DotNet.ServiceName.Api.Tests.Infrastructure;
+using DotNet.ServiceName.Common.Configuration;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
@@ -109,6 +110,25 @@ public sealed class HomePageModelTests
         Assert.Equal("Payments API", page.Home.Title);
         Assert.Equal("Handles the payments", page.Home.Description);
         Assert.False(page.Home.ShowEnvironment);
+    }
+
+    [Theory]
+    [InlineData("System", HomePageTheme.System)]
+    [InlineData("Light", HomePageTheme.Light)]
+    [InlineData("Dark", HomePageTheme.Dark)]
+    public void HomePage_UsesTheConfiguredDefaultTheme(string configured, HomePageTheme expected)
+    {
+        var page = Build(new Dictionary<string, string?> { ["HomePageOptions:DefaultTheme"] = configured });
+
+        Assert.Equal(expected, page.Home.DefaultTheme);
+    }
+
+    [Fact]
+    public void HomePage_WithoutConfiguration_FollowsTheSystemTheme()
+    {
+        var page = Build(new Dictionary<string, string?> { ["HomePageOptions:DefaultTheme"] = null });
+
+        Assert.Equal(HomePageTheme.System, page.Home.DefaultTheme);
     }
 
     [Fact]
