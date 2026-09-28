@@ -25,8 +25,11 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>
     static ApiTestFactory()
     {
         // WebApplication.CreateBuilder reads the environment from process variables before
-        // ConfigureWebHost runs - set it up front so appsettings.Local.json is loaded
+        // ConfigureWebHost runs - set both variants up front (DOTNET_ENVIRONMENT wins over
+        // ASPNETCORE_ENVIRONMENT when both are present) so appsettings.Local.json is loaded
+        // regardless of the environment the test runner was started with
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Local");
+        Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Local");
     }
 
     /// <inheritdoc />
