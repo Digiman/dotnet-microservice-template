@@ -9,6 +9,9 @@
  * Every text and background pair used by the dashboard is checked for at least WCAG AA contrast
  * (4.5:1) in both the light and the dark palette - keep it that way when changing a color.
  *
+ * The packaged UI has no dark palette of its own - the dark values below only respond to the
+ * operating system preference (`prefers-color-scheme`).
+ *
  * The logo is an SVG kept in wwwroot/images - reference it with a root relative url because the
  * stylesheet itself is served from /ui/resources/css.
  */
@@ -18,7 +21,7 @@
 
   /* brand palette - dark enough for text and icons on a light surface */
   --primaryColor: #4338ca;
-  --secondaryColor: #3730a3;
+  --secondaryColor: #4f46e5;
   --successColor: #047857;
   --warningColor: #b45309;
   --dangerColor: #b91c1c;
@@ -26,17 +29,17 @@
   /* surfaces and text */
   --darkColor: #0f172a;
   --midDarkColor: #1e293b;
-  --grayColor: #334155;
-  --midGrayColor: #cbd5e1;
+  --grayColor: #3f4e64;
+  --midGrayColor: #d8dee8;
   --lightColor: #f8fafc;
   --bgSecondary: #fff;
 
   /* the dashboard does not declare these, they are used by the overrides further down */
   --mutedText: #64748b;
-  --tableHeaderBackground: #e2e8f0;
-  --tableHeaderText: #1e293b;
+  --tableHeaderBackground: #eef1f7;
+  --tableHeaderText: #3a495e;
   --logoImageUrl: url('/images/healthcheck-logo.svg');
-  --ffBase: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  --ffBase: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 body {
@@ -48,7 +51,7 @@ body {
 /* logo and navigation aside */
 .hc-aside {
   background-color: var(--midDarkColor);
-  box-shadow: 2px 0 8px rgb(15 23 42 / 15%);
+  box-shadow: 2px 0 8px rgb(15 23 42 / 10%);
 }
 
 .hc-aside__logo {
@@ -57,13 +60,15 @@ body {
 }
 
 .hc-aside-menu__item {
-  color: #f1f5f9;
+  color: #d9e1ee;
 }
 
+/* a translucent lift instead of a solid near black, so the hover stays quiet in both palettes;
+   the active item needs the compound selector to outperform the packaged base theme */
 .hc-aside-menu__item:hover,
-.hc-aside-menu__item--active {
+.hc-aside-menu__item.hc-aside-menu__item--active {
   border-color: var(--primaryColor);
-  background-color: var(--darkColor);
+  background-color: rgb(255 255 255 / 7%);
   color: #fff;
 }
 
@@ -72,8 +77,10 @@ body {
   padding: 1.5rem 2rem;
 }
 
+/* the packaged UI has no dark palette, so the title has to follow the text color of the
+   palette below instead of staying dark - grayColor is what the base theme uses for text */
 h1 {
-  color: var(--darkColor);
+  color: var(--grayColor);
   font-size: 1.375rem;
 }
 
@@ -86,7 +93,8 @@ h1 {
 }
 
 .hc-button:hover {
-  background-color: var(--darkColor);
+  background-color: var(--primaryColor);
+  background-image: none;
 }
 
 /* checks table */
@@ -100,13 +108,11 @@ h1 {
   color: var(--tableHeaderText);
 }
 
-.hc-checks-table__row:hover {
-  background-color: var(--primaryColor);
+/* a soft tinted row instead of the base solid primary with an 80% white overlay on top,
+   which washes the row out completely */
+.hc-table__row:hover {
+  background-color: rgb(67 56 202 / 7%);
   background-image: none;
-}
-
-.hc-checks-table__row:hover td {
-  color: #fff;
 }
 
 /* status tags */
@@ -140,15 +146,15 @@ h1 {
     --dangerColor: #f87171;
 
     --darkColor: #020617;
-    --midDarkColor: #1e293b;
-    --grayColor: #e2e8f0;
-    --midGrayColor: #334155;
-    --lightColor: #0f172a;
-    --bgSecondary: #1e293b;
+    --midDarkColor: #223048;
+    --grayColor: #c9d3e2;
+    --midGrayColor: #2e3c56;
+    --lightColor: #131c2e;
+    --bgSecondary: #202c42;
 
-    --mutedText: #94a3b8;
-    --tableHeaderBackground: #334155;
-    --tableHeaderText: #f1f5f9;
+    --mutedText: #8da0b6;
+    --tableHeaderBackground: #2a3850;
+    --tableHeaderText: #ccd6e5;
   }
 
   .hc-aside {
@@ -157,11 +163,22 @@ h1 {
 
   /* the status tags carry dark text on the light brand colors now */
   .tag {
-    color: #0f172a;
+    color: #1e293b;
   }
 
   .hc-button {
     color: #fff;
+  }
+
+  /* the light hover color is too light a step for white button text here - fall back to the
+     base hover (a 20% black overlay over the button color) */
+  .hc-button:hover {
+    background-color: var(--secondaryColor);
+    background-image: var(--bgImageDarken);
+  }
+
+  .hc-table__row:hover {
+    background-color: rgb(165 180 252 / 10%);
   }
 
   .hc-liveness-panel {

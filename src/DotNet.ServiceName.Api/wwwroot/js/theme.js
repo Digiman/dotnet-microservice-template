@@ -14,6 +14,9 @@
   const themes = ['system', 'light', 'dark']
   const root = document.documentElement
   const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+  // keep in sync with the page background colors of home.css
+  const themeColors = { light: '#ffffff', dark: '#141d2f' }
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
 
   function readStoredTheme () {
     try {
@@ -34,7 +37,12 @@
   }
 
   function applyTheme (theme) {
-    root.setAttribute('data-theme', resolveTheme(theme))
+    const resolved = resolveTheme(theme)
+    root.setAttribute('data-theme', resolved)
+
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', themeColors[resolved])
+    }
 
     const inputs = document.querySelectorAll('input[name="home-theme"]')
     for (let index = 0; index < inputs.length; index++) {

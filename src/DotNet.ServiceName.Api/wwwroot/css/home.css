@@ -12,6 +12,9 @@
  * element by wwwroot/js/theme.js. The script sets the attribute before the first paint, so the two
  * selectors are kept in sync on purpose - the media query block and the attribute selector declare
  * the same values.
+ *
+ * Every text and background pair used by the page is checked for at least WCAG AA contrast (4.5:1)
+ * in both palettes - keep it that way when changing a color.
  */
 
 :root {
@@ -22,13 +25,13 @@
   --surface: #fff;
   --surface-muted: #f8fafc;
   --topbar-background: rgb(255 255 255 / 85%);
-  --border: #cbd5e1;
-  --text: #0f172a;
+  --border: #d6dde7;
+  --text: #334155;
   --text-muted: #64748b;
-  --shadow: 0 1px 3px rgb(15 23 42 / 8%), 0 10px 25px rgb(15 23 42 / 6%);
-  --switch-background: #e2e8f0;
+  --shadow: 0 1px 2px rgb(15 23 42 / 5%), 0 8px 20px rgb(15 23 42 / 5%);
+  --switch-background: #e8edf4;
   --switch-selected: #fff;
-  --switch-text: #475569;
+  --switch-text: #5c6b80;
   --focus-ring: #4338ca;
 }
 
@@ -40,7 +43,7 @@ body {
   margin: 0;
   background-color: var(--surface-muted);
   color: var(--text);
-  font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
   line-height: 1.5;
 }
 
@@ -57,6 +60,7 @@ body {
   padding: .75rem 1.5rem;
   border-bottom: 1px solid var(--border);
   background-color: var(--topbar-background);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
@@ -102,7 +106,8 @@ body {
   white-space: nowrap;
 }
 
-/* theme switch - a radio group, so it works with keyboard and screen readers out of the box */
+/* theme switch - a radio group, so it works with keyboard and screen readers out of the box;
+   the options are icon only, the accessible names live in the visually hidden spans */
 .themes {
   display: inline-flex;
   gap: .125rem;
@@ -128,11 +133,12 @@ body {
 .themes__option {
   position: relative;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .3125rem;
   border-radius: 999px;
   color: var(--switch-text);
   cursor: pointer;
-  font-size: .75rem;
-  font-weight: 500;
 }
 
 .themes__option input {
@@ -144,22 +150,27 @@ body {
   cursor: pointer;
 }
 
-.themes__option span {
-  padding: .1875rem .625rem;
-  border-radius: 999px;
+.themes__icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .themes__option:hover {
   color: var(--text);
 }
 
-.themes__option input:checked + span {
+.themes__option:has(input:checked) {
   background-color: var(--switch-selected);
   color: var(--brand);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 20%);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
 }
 
-.themes__option input:focus-visible + span {
+.themes__option:has(input:focus-visible) {
   outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
 }
@@ -203,7 +214,7 @@ body {
 .home__link:hover,
 .home__link:focus-visible {
   border-color: var(--brand);
-  box-shadow: 0 1px 3px rgb(15 23 42 / 8%), 0 12px 28px rgb(67 56 202 / 18%);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 8%), 0 12px 28px rgb(67 56 202 / 14%);
   transform: translateY(-2px);
 }
 
@@ -235,6 +246,17 @@ body {
   text-align: center;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .home__link {
+    transition-duration: 0s;
+  }
+
+  .home__link:hover,
+  .home__link:focus-visible {
+    transform: none;
+  }
+}
+
 @media (width <= 30rem) {
   .topbar {
     align-items: flex-start;
@@ -253,17 +275,23 @@ body {
 
     --brand: #a5b4fc;
     --brand-contrast: #4f46e5;
-    --surface: #1e293b;
-    --surface-muted: #0f172a;
-    --topbar-background: rgb(15 23 42 / 85%);
-    --border: #334155;
-    --text: #e2e8f0;
-    --text-muted: #94a3b8;
-    --shadow: 0 1px 3px rgb(0 0 0 / 40%);
-    --switch-background: #0b1220;
-    --switch-selected: #334155;
-    --switch-text: #cbd5e1;
+    --surface: #1f2a3f;
+    --surface-muted: #141d2f;
+    --topbar-background: rgb(20 29 47 / 85%);
+    --border: #2d3b53;
+    --text: #c6d1e1;
+    --text-muted: #8fa1b7;
+    --shadow: 0 1px 3px rgb(0 0 0 / 30%);
+    --switch-background: #182236;
+    --switch-selected: #2c3a53;
+    --switch-text: #b9c5d6;
     --focus-ring: #a5b4fc;
+  }
+
+  /* single color dark icons would vanish on the dark cards */
+  :root:not([data-theme='light']) .home__link-icon[src*='scalar'],
+  :root:not([data-theme='light']) .home__link-icon[src*='simple-healthcheck'] {
+    filter: invert(1);
   }
 }
 
@@ -272,15 +300,21 @@ body {
 
   --brand: #a5b4fc;
   --brand-contrast: #4f46e5;
-  --surface: #1e293b;
-  --surface-muted: #0f172a;
-  --topbar-background: rgb(15 23 42 / 85%);
-  --border: #334155;
-  --text: #e2e8f0;
-  --text-muted: #94a3b8;
-  --shadow: 0 1px 3px rgb(0 0 0 / 40%);
-  --switch-background: #0b1220;
-  --switch-selected: #334155;
-  --switch-text: #cbd5e1;
+  --surface: #1f2a3f;
+  --surface-muted: #141d2f;
+  --topbar-background: rgb(20 29 47 / 85%);
+  --border: #2d3b53;
+  --text: #c6d1e1;
+  --text-muted: #8fa1b7;
+  --shadow: 0 1px 3px rgb(0 0 0 / 30%);
+  --switch-background: #182236;
+  --switch-selected: #2c3a53;
+  --switch-text: #b9c5d6;
   --focus-ring: #a5b4fc;
+}
+
+/* single color dark icons would vanish on the dark cards */
+:root[data-theme='dark'] .home__link-icon[src*='scalar'],
+:root[data-theme='dark'] .home__link-icon[src*='simple-healthcheck'] {
+  filter: invert(1);
 }

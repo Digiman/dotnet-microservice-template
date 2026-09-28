@@ -9,6 +9,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    @* kept in sync with the theme switch: wwwroot/js/theme.js updates the color when the theme changes *@
+    <meta name="theme-color" content="#ffffff" />
     <title>@Model.Home.Title</title>
     <link rel="icon" href="~/favicon.ico" />
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
@@ -34,9 +36,41 @@
                 {
                     var value = theme.ToString().ToLowerInvariant();
                     var isChecked = theme == Model.Home.DefaultTheme;
-                    <label class="themes__option">
+                    var title = $"{theme} theme";
+                    <label class="themes__option" title="@title">
                         <input type="radio" name="home-theme" value="@value" checked="@isChecked" />
-                        <span>@theme</span>
+                        @if (theme == HomePageTheme.System)
+                        {
+                            @* monitor *@
+                            <svg class="themes__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                        }
+                        else if (theme == HomePageTheme.Light)
+                        {
+                            @* sun *@
+                            <svg class="themes__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.07" x2="5.64" y2="17.66"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                        }
+                        else
+                        {
+                            @* moon *@
+                            <svg class="themes__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                        }
+                        <span class="visually-hidden">@theme</span>
                     </label>
                 }
             </fieldset>
