@@ -16,7 +16,7 @@ Docker setup for local development.
 
 ```
 src/
-  DotNet.ServiceName.Api/          # Web API host: controllers, middleware, Swagger/Scalar, auth
+  DotNet.ServiceName.Api/          # Web API host: controllers, Razor home page, middleware, Swagger/Scalar, auth
   DotNet.ServiceName.Application/  # Business logic, DTOs/facets, service registrations
   DotNet.ServiceName.Common/       # Shared configuration options and extension helpers
 tests/
@@ -113,6 +113,40 @@ replacing it also removes the external request. Use a root relative `url('/image
 stylesheet, because it is served from `/ui/resources/css`. Clear `CustomStylesheet` to fall back to
 the dashboard defaults; a configured file that is missing in `wwwroot` is logged as a warning and
 also falls back to the defaults.
+
+## Home page
+
+The root of the service (`/`) is a Razor Page (`src/DotNet.ServiceName.Api/Pages/Index.cshtml`) whose
+links are built from the configuration of the running environment, so a production deployment does
+not advertise UIs it does not expose. Its content is configured in `HomePageOptions`:
+
+```json
+"HomePageOptions": {
+  "Enabled": true,
+  "Title": "Simple Service API",
+  "Description": "Template service with API Key authorization, health checks and OpenTelemetry",
+  "ShowEnvironment": true,
+  "ShowDocumentation": true,
+  "ShowHealthChecks": true,
+  "Links": []
+}
+```
+
+| Setting | Effect |
+|---|---|
+| `Enabled` | Serve the page on `/`. When `false`, Razor Pages are not registered at all and `/` returns `404` |
+| `Title`, `Description` | Heading and lead text of the page |
+| `ShowEnvironment` | Show the name of the current environment as a badge |
+| `ShowDocumentation` | Show Swagger, Scalar and Facet Dashboard links - but only when `SwaggerEnabled` is `true` for the environment. When they are expected and turned off, the page says that the documentation is not available |
+| `ShowHealthChecks` | Show the health status link, plus the dashboard link when the Health Checks UI is enabled |
+| `Links` | Extra links (title, description, url, icon, enabled, open in new tab) for anything the configuration above does not cover |
+
+Turn the whole page off with `Enabled`, and tune the content per environment - the shipped
+[`appsettings.Production.json`](src/DotNet.ServiceName.Api/appsettings.Production.json) is the sample
+of a production deployment: `SwaggerEnabled: false` (so no Swagger, Scalar or Facet links), no
+environment badge and a link to an internal runbook. Styles live in
+[`wwwroot/css/home.css`](src/DotNet.ServiceName.Api/wwwroot/css/home.css) and the icons in
+[`wwwroot/icons`](src/DotNet.ServiceName.Api/wwwroot/icons).
 
 ## Security headers
 

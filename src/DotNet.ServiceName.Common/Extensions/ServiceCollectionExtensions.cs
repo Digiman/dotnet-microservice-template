@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddWithValidation<HealthCheckOptions>(nameof(HealthCheckOptions));
         services.AddWithValidation<MemoryCheckOptions>(nameof(MemoryCheckOptions));
         services.AddWithValidation<ApiKeyOptions>(nameof(ApiKeyOptions));
+        services.AddWithValidation<HomePageOptions>(nameof(HomePageOptions));
         services.AddWithValidation<CorsPolicyOptions>(nameof(CorsPolicyOptions));
         services.AddWithValidation<RateLimitingOptions>(nameof(RateLimitingOptions));
         services.AddWithValidation<HttpTimeoutOptions>(nameof(HttpTimeoutOptions));
@@ -31,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddWithValidation<HealthCheckOptions, HealthCheckOptionsValidator>(nameof(HealthCheckOptions));
         services.AddWithValidation<MemoryCheckOptions, MemoryCheckOptionsValidator>(nameof(MemoryCheckOptions));
         services.AddWithValidation<ApiKeyOptions, ApiKeyOptionsValidator>(nameof(ApiKeyOptions));
+        services.AddWithValidation<HomePageOptions, HomePageOptionsValidator>(nameof(HomePageOptions));
         services.AddWithValidation<CorsPolicyOptions, CorsPolicyOptionsValidator>(nameof(CorsPolicyOptions));
         services.AddWithValidation<RateLimitingOptions, RateLimitingOptionsValidator>(nameof(RateLimitingOptions));
         services.AddWithValidation<HttpTimeoutOptions, HttpTimeoutOptionsValidator>(nameof(HttpTimeoutOptions));

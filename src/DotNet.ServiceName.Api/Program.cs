@@ -73,6 +73,12 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     // add controller endpoints
     appBuilder.MapControllers();
 
+    // add the Razor Pages of the service (home page) when it is enabled in configuration
+    if (builder.Configuration.GetHomePageConfiguration() is { Enabled: true })
+    {
+        appBuilder.MapRazorPages();
+    }
+
     // add health checks, endpoints and configurations
     appBuilder.AddHealthcheckEndpoints(healthCheckConfig);
 

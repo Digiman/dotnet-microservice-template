@@ -33,6 +33,11 @@ public static class ConfigurationExtensions
         return configuration.GetSection(nameof(ApiKeyOptions)).Get<ApiKeyOptions>();
     }
 
+    public static HomePageOptions? GetHomePageConfiguration(this IConfiguration configuration)
+    {
+        return configuration.GetSection(nameof(HomePageOptions)).Get<HomePageOptions>();
+    }
+
     public static CorsPolicyOptions? GetCorsPolicyConfiguration(this IConfiguration configuration)
     {
         return configuration.GetSection(nameof(CorsPolicyOptions)).Get<CorsPolicyOptions>();

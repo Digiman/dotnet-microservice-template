@@ -1,0 +1,55 @@
+@page
+@model IndexModel
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@Model.Home.Title</title>
+    <link rel="icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+</head>
+<body>
+    <main class="home">
+        <header class="home__header">
+            <h1 class="home__title">@Model.Home.Title</h1>
+            @if (!string.IsNullOrWhiteSpace(Model.Home.Description))
+            {
+                <p class="home__lead">@Model.Home.Description</p>
+            }
+            @if (Model.Home.ShowEnvironment)
+            {
+                <p class="home__badge">@Model.Home.Environment</p>
+            }
+        </header>
+
+        @if (Model.Home.Links.Count > 0)
+        {
+            <ul class="home__links">
+                @foreach (var link in Model.Home.Links)
+                {
+                    <li>
+                        <a class="home__link" href="@link.Url" target="@(link.OpenInNewTab ? "_blank" : null)"
+                           rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">
+                            @if (!string.IsNullOrWhiteSpace(link.Icon))
+                            {
+                                <img class="home__link-icon" src="@link.Icon" alt="" />
+                            }
+                            <span class="home__link-title">@link.Title</span>
+                            @if (!string.IsNullOrWhiteSpace(link.Description))
+                            {
+                                <span class="home__link-description">@link.Description</span>
+                            }
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (Model.Home.DocumentationDisabled)
+        {
+            <p class="home__note">API documentation is not available in this environment.</p>
+        }
+    </main>
+</body>
+</html>
