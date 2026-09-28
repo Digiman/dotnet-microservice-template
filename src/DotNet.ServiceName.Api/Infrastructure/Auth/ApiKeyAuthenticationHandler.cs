@@ -1,5 +1,9 @@
 using DotNet.ServiceName.Common.Configuration;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -64,10 +68,44 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
     }
 
     /// <inheritdoc />
-    protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+    protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
     {
         Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
+        Response.Headers.WWWAuthenticate = Scheme.Name;
+
+        await WriteProblemDetailsAsync(
+            StatusCodes.Status401Unauthorized,
+            $"Missing or invalid API key. Provide the key in the '{_apiKeyConfig.HeaderName}' header.");
+    }
+
+    /// <inheritdoc />
+    protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
+    {
+        Response.StatusCode = StatusCodes.Status403Forbidden;
+
+        await WriteProblemDetailsAsync(
+            StatusCodes.Status403Forbidden,
+            "The provided API key does not have access to this resource.");
+    }
+
+    private async Task WriteProblemDetailsAsync(int statusCode, string detail)
+    {
+        var problemDetailsService = Context.RequestServices.GetService<IProblemDetailsService>();
+        if (problemDetailsService is null)
+        {
+            return;
+        }
+
+        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = Context,
+            ProblemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = ReasonPhrases.GetReasonPhrase(statusCode),
+                Detail = detail
+            }
+        });
     }
 
     private bool IsApiKeyValid(string providedApiKey)

@@ -2,8 +2,10 @@ using Asp.Versioning.ApiExplorer;
 using DotNet.ServiceName.Api.Infrastructure.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Net;
 
 namespace DotNet.ServiceName.Api.Infrastructure.Extensions;
 
@@ -59,18 +61,38 @@ public static class ApplicationBuilderExtensions
     /// Configure application to work after the load balancers and proxies.
     /// </summary>
     /// <param name="app">Application builder.</param>
+    /// <param name="configuration">Application configuration.</param>
     /// <returns>Returns updated object with application builder.</returns>
     /// <remarks>
-    /// See details here: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-5.0
+    /// See details here: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer
+    /// By default only the loopback proxy is trusted. When running behind a reverse proxy or load
+    /// balancer, list its IP addresses in the "ForwardedHeaders:KnownProxies" configuration section
+    /// (e.g. "ForwardedHeaders": { "KnownProxies": [ "10.0.0.5" ] }) - otherwise X-Forwarded-* headers
+    /// from any client would be trusted (spoofing the perceived client IP).
     /// </remarks>
-    public static IApplicationBuilder ConfigureForwarderOptions(this IApplicationBuilder app)
+    public static IApplicationBuilder ConfigureForwarderOptions(this IApplicationBuilder app, IConfiguration configuration)
     {
         var forwardedHeadersOptions = new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.All
         };
-        forwardedHeadersOptions.KnownProxies.Clear();
-        forwardedHeadersOptions.KnownIPNetworks.Clear();
+
+        var knownProxies = configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>();
+        if (knownProxies is { Length: > 0 })
+        {
+            // trust only the explicitly configured proxies
+            forwardedHeadersOptions.KnownProxies.Clear();
+            forwardedHeadersOptions.KnownIPNetworks.Clear();
+
+            foreach (var proxy in knownProxies)
+            {
+                if (IPAddress.TryParse(proxy, out var ipAddress))
+                {
+                    forwardedHeadersOptions.KnownProxies.Add(ipAddress);
+                }
+            }
+        }
+
         app.UseForwardedHeaders(forwardedHeadersOptions);
 
         return app;

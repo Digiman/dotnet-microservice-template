@@ -38,7 +38,7 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     var healthCheckConfig = builder.Configuration.GetHealthCheckConfiguration();
 
     // configure Forwarder headers for proxies and Load Balancers
-    appBuilder.ConfigureForwarderOptions();
+    appBuilder.ConfigureForwarderOptions(builder.Configuration);
 
     if (!env.IsEnvironment("Local"))
     {
@@ -62,13 +62,13 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
     // use default files
     appBuilder.UseDefaultFiles();
 
-    // allow to use static files
+    // allow using static files
     appBuilder.UseStaticFiles();
 
-    // add controllers endpoints
+    // add controller endpoints
     appBuilder.MapControllers();
 
-    // add health checks endpoints and configurations
+    // add health checks, endpoints and configurations
     appBuilder.AddHealthcheckEndpoints(healthCheckConfig);
 
     if (builder.Configuration.IsSwaggerEnabled())

@@ -35,9 +35,11 @@ public sealed class StatusController : ControllerBase
     /// </summary>
     /// <returns>Returns information about application and it's status.</returns>
     /// <response code="200">Returns information about application.</response>
+    /// <response code="401">Missing or invalid API key.</response>
     /// <response code="500">Server error happened during processing the request.</response>
     [HttpGet]
     [ProducesResponseType(typeof(StatusResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<StatusResponseDto>> GetStatus()
     {

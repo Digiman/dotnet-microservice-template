@@ -95,6 +95,18 @@ HSTS (365 days, subdomains included), CSP, `X-Frame-Options`, `X-Content-Type-Op
 `Referrer-Policy`, Permissions-Policy, and Cross-Origin policies. See
 `ApplicationBuilderExtensions.ConfigureSecurityHeaders` for the configured policy.
 
+## Running behind a proxy / load balancer
+
+Forwarded headers are processed, but only a loopback proxy is trusted by default so clients
+cannot spoof `X-Forwarded-*`. When running behind a reverse proxy or load balancer, list its
+IP address in configuration:
+
+```json
+"ForwardedHeaders": {
+  "KnownProxies": ["10.0.0.5"]
+}
+```
+
 ## Build Process for Local Development
 
 * You have Docker installed - ideally latest version of the tool.
