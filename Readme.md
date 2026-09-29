@@ -280,7 +280,7 @@ which fans it out to three local backends:
 
 | Service | Url | Role |
 | --- | --- | --- |
-| `grafana` | http://localhost:3000 | UI over the stored metrics and traces, with a provisioned "Service overview" dashboard (no login for local development) |
+| `grafana` | http://localhost:3000 | UI over the stored metrics and traces, with the official "ASP.NET Core" dashboards and a provisioned "Service overview" dashboard (no login for local development) |
 | `aspire-dashboard` | http://localhost:18888 | the same Aspire dashboard UI as under `aspire run`, receiving live logs, traces and metrics from the collector |
 | `prometheus` | http://localhost:9090 | metrics storage, scraped from the collector; the `service_name` label allows filtering per service |
 | `tempo` | http://localhost:3200 | traces storage, queryable from Grafana (TraceQL) |
@@ -288,7 +288,11 @@ which fans it out to three local backends:
 Logs keep flowing to Seq (http://localhost:5341) exactly as before, and the collector also
 forwards them to the Aspire dashboard. The stack is configured entirely through files under
 `docker/` - collector pipeline, Prometheus scrape config, Tempo storage and Grafana
-provisioning (datasources + dashboard).
+provisioning (datasources + dashboards). The Grafana dashboards are the
+[official ASP.NET Core ones](https://grafana.com/grafana/dashboards/19924-asp-net-core/)
+("ASP.NET Core" + "ASP.NET Core Endpoint", vendored from the
+[aspire repo](https://github.com/dotnet/aspire) as the source is not directly downloadable in
+some regions) plus a small template-specific "Service overview".
 
 ## Running behind a proxy / load balancer
 

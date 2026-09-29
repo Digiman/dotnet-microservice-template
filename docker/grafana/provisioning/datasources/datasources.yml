@@ -3,10 +3,12 @@ apiVersion: 1
 
 datasources:
   # metrics - collected by the OpenTelemetry Collector, stored by Prometheus
+  # the fixed uid is referenced by the provisioned dashboards
   - name: Prometheus
     type: prometheus
     access: proxy
     url: http://prometheus:9090
+    uid: prometheus
     isDefault: true
 
   # traces - collected by the OpenTelemetry Collector, stored by Tempo
@@ -14,3 +16,4 @@ datasources:
     type: tempo
     access: proxy
     url: http://tempo:3200
+    uid: tempo
