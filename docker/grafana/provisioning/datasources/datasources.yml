@@ -1,0 +1,16 @@
+# Datasources Grafana gets provisioned with on startup.
+apiVersion: 1
+
+datasources:
+  # metrics - collected by the OpenTelemetry Collector, stored by Prometheus
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+
+  # traces - collected by the OpenTelemetry Collector, stored by Tempo
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200

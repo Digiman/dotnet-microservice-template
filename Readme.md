@@ -268,7 +268,27 @@ liveness health check, service discovery, and a standard resilience pipeline for
 endpoints, because the template maps `/health`, `/health/live` and `/health/ready` itself.
 
 `docker-compose.yml` remains the standalone option (`docker compose up --build`) - it runs the
-same API and Seq pair without Aspire.
+same API and Seq pair plus a full observability stack without Aspire (see
+[Docker observability stack](#docker-observability-stack)).
+
+## Docker observability stack
+
+When the service runs through `docker compose up --build`, its telemetry does not stop at the
+logs: the app exports every signal once to a local
+[OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) (`docker/otel-collector`),
+which fans it out to three local backends:
+
+| Service | Url | Role |
+| --- | --- | --- |
+| `grafana` | http://localhost:3000 | UI over the stored metrics and traces, with a provisioned "Service overview" dashboard (no login for local development) |
+| `aspire-dashboard` | http://localhost:18888 | the same Aspire dashboard UI as under `aspire run`, receiving live logs, traces and metrics from the collector |
+| `prometheus` | http://localhost:9090 | metrics storage, scraped from the collector; the `service_name` label allows filtering per service |
+| `tempo` | http://localhost:3200 | traces storage, queryable from Grafana (TraceQL) |
+
+Logs keep flowing to Seq (http://localhost:5341) exactly as before, and the collector also
+forwards them to the Aspire dashboard. The stack is configured entirely through files under
+`docker/` - collector pipeline, Prometheus scrape config, Tempo storage and Grafana
+provisioning (datasources + dashboard).
 
 ## Running behind a proxy / load balancer
 
@@ -323,6 +343,8 @@ dotnet format DotNet.ServiceName.sln --verify-no-changes
 # build and run in Docker (container listens on port 8080 internally)
 docker compose up --build
 # then open http://localhost:5050/swagger/index.html or http://localhost:5050/scalar
+# observability: http://localhost:3000 (Grafana), http://localhost:18888 (Aspire dashboard),
+# http://localhost:9090 (Prometheus), http://localhost:3200 (Tempo), http://localhost:5341 (Seq)
 
 # run with Aspire orchestration (API + Seq + dashboard)
 aspire run --project src/DotNet.ServiceName.AppHost/DotNet.ServiceName.AppHost.csproj
