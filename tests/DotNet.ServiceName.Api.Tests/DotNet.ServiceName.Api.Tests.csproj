@@ -27,4 +27,13 @@
       <ProjectReference Include="..\..\src\DotNet.ServiceName.Api\DotNet.ServiceName.Api.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <!-- The tests run with the test output folder as content root, so the API static web assets
+           (home page styles, health check dashboard theme and logo) are copied there to be served
+           by the static files middleware. -->
+      <Content Include="..\..\src\DotNet.ServiceName.Api\wwwroot\**\*"
+               Link="wwwroot\%(RecursiveDir)%(Filename)%(Extension)"
+               CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
 </Project>

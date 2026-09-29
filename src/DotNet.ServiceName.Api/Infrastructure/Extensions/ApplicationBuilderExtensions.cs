@@ -26,7 +26,6 @@ public static class ApplicationBuilderExtensions
         // specifying the Swagger JSON endpoint.
         app.UseSwaggerUI(options =>
         {
-
             // build a swagger endpoint for each discovered API version
             foreach (var description in apiDescriptions)
             {

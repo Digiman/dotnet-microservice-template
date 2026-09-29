@@ -1,0 +1,123 @@
+@page
+@using DotNet.ServiceName.Common.Configuration
+@model IndexModel
+@{
+    var selectedTheme = Model.Home.DefaultTheme.ToString().ToLowerInvariant();
+}
+<!DOCTYPE html>
+<html lang="en" data-theme-default="@selectedTheme">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    @* kept in sync with the theme switch: wwwroot/js/theme.js updates the color when the theme changes *@
+    <meta name="theme-color" content="#ffffff" />
+    <title>@Model.Home.Title</title>
+    <link rel="icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    @* applied before the first paint, so the page never flashes in the wrong theme *@
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar__brand">
+            <img class="topbar__mark" src="~/images/service-mark.svg" alt="" />
+            <h1 class="topbar__title">@Model.Home.Title</h1>
+        </div>
+
+        <div class="topbar__actions">
+            @if (Model.Home.ShowEnvironment)
+            {
+                <p class="topbar__badge">@Model.Home.Environment</p>
+            }
+
+            <fieldset class="themes">
+                <legend class="themes__legend">Theme</legend>
+                @foreach (var theme in new[] { HomePageTheme.System, HomePageTheme.Light, HomePageTheme.Dark })
+                {
+                    var value = theme.ToString().ToLowerInvariant();
+                    var isChecked = theme == Model.Home.DefaultTheme;
+                    var title = $"{theme} theme";
+                    <label class="themes__option" title="@title">
+                        <input type="radio" name="home-theme" value="@value" checked="@isChecked" />
+                        @if (theme == HomePageTheme.System)
+                        {
+                            @* monitor *@
+                            <svg class="themes__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                        }
+                        else if (theme == HomePageTheme.Light)
+                        {
+                            @* sun *@
+                            <svg class="themes__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.07" x2="5.64" y2="17.66"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                        }
+                        else
+                        {
+                            @* moon *@
+                            <svg class="themes__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                        }
+                        <span class="visually-hidden">@theme</span>
+                    </label>
+                }
+            </fieldset>
+        </div>
+    </header>
+
+    <main class="home">
+        @if (!string.IsNullOrWhiteSpace(Model.Home.Description))
+        {
+            <p class="home__lead">@Model.Home.Description</p>
+        }
+
+        @if (Model.Home.Links.Count > 0)
+        {
+            <ul class="home__links">
+                @foreach (var link in Model.Home.Links)
+                {
+                    <li>
+                        <a class="home__link" href="@link.Url" target="@(link.OpenInNewTab ? "_blank" : null)"
+                           rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">
+                            @if (!string.IsNullOrWhiteSpace(link.Icon))
+                            {
+                                <img class="home__link-icon" src="@link.Icon" alt="" />
+                            }
+                            <span class="home__link-title">@link.Title</span>
+                            @if (!string.IsNullOrWhiteSpace(link.Description))
+                            {
+                                <span class="home__link-description">@link.Description</span>
+                            }
+                            @if (link.OpenInNewTab)
+                            {
+                                <span class="visually-hidden">Opens in a new tab</span>
+                            }
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="home__note">This service does not expose any additional endpoints.</p>
+        }
+
+        @if (Model.Home.DocumentationDisabled)
+        {
+            <p class="home__note">API documentation is not available in this environment.</p>
+        }
+    </main>
+</body>
+</html>

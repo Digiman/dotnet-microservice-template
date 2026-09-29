@@ -104,6 +104,12 @@ public static class ServiceCollectionExtensions
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
+        // add the Razor Pages of the service - currently the home page only
+        if (configuration.GetHomePageConfiguration() is { Enabled: true })
+        {
+            services.AddRazorPages();
+        }
+
         // add API versions
         services.ConfigureApiVersions();
 

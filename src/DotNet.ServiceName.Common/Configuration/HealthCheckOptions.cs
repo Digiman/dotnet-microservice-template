@@ -14,6 +14,12 @@ public sealed class HealthCheckOptions
     public required string HeaderText { get; set; }
     public int EvaluationTimeInSeconds { get; set; }
     public int MaximumHistoryEntriesPerEndpoint { get; set; }
+
+    /// <summary>
+    /// Path of a custom stylesheet applied on top of the dashboard styles, relative to wwwroot.
+    /// Leave it empty to keep the dashboard defaults.
+    /// </summary>
+    public string? CustomStylesheet { get; set; }
 }
 
 /// <summary>
