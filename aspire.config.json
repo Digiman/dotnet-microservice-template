@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/DotNet.ServiceName.AppHost/DotNet.ServiceName.AppHost.csproj"
+  }
+}

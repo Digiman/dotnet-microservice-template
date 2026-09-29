@@ -1,18 +1,32 @@
 using DotNet.ServiceName.Api.Infrastructure.Extensions;
 using DotNet.ServiceName.Common.Extensions;
+using DotNet.ServiceName.ServiceDefaults;
 using Facet.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder();
+
+// add the shared service defaults - OpenTelemetry, service discovery and
+// HttpClient resilience (see DotNet.ServiceName.ServiceDefaults)
+builder.AddServiceDefaults();
 
 // configure Serilog for logging
 builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+
+    // forward the logs to the Aspire dashboard when the app runs under the AppHost,
+    // which injects the OTLP endpoint of the dashboard into the process environment
+    var otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+    if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+    {
+        loggerConfiguration.WriteTo.OpenTelemetry(otlpEndpoint, OtlpProtocol.HttpProtobuf);
+    }
 });
 
 // configure application services
