@@ -154,8 +154,8 @@ public sealed class HomePageModelTests
         Assert.True(page.Home.DocumentationDisabled);
         Assert.DoesNotContain(page.Home.Links, link => link.Url == "/swagger");
         Assert.DoesNotContain(page.Home.Links, link => link.Url == "/scalar");
-        Assert.Contains(page.Home.Links, link => link.Url == "https://www.companyname.net/runbooks/service-name");
-        Assert.DoesNotContain(page.Home.Links, link => link.Url == "https://www.companyname.net/mailbox");
+        // the sample deployment ships no custom links, only the health endpoints stay
+        Assert.DoesNotContain(page.Home.Links, link => link.Url.StartsWith("https://", StringComparison.Ordinal));
     }
 
     private static IndexModel Build(Dictionary<string, string?> overrides)
