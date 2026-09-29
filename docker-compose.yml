@@ -10,7 +10,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       # telemetry goes once to the local collector, which fans it out to the
-      # backends below (Prometheus, Tempo, Aspire dashboard); the http/protobuf
+      # backends below (Loki, Prometheus, Tempo, Aspire dashboard); the http/protobuf
       # protocol is shared by the OTLP exporter and the Serilog bridge in Program.cs
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
@@ -36,6 +36,7 @@ services:
       - ./docker/otel-collector/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
     depends_on:
       - tempo
+      - loki
       - aspire-dashboard
 
   # metrics storage - scrapes the collector's Prometheus exporter
@@ -58,6 +59,17 @@ services:
     volumes:
       - ./docker/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
       - tempo-data:/var/tempo
+
+  # logs storage - receives OTLP logs from the collector
+  loki:
+    container_name: service-loki
+    image: grafana/loki:3.7.2
+    command: [ "-config.file=/etc/loki/loki-config.yaml" ]
+    ports:
+      - 3100:3100
+    volumes:
+      - ./docker/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki-data:/loki
 
   # the same Aspire dashboard UI as under `aspire run`, fed by the collector
   aspire-dashboard:
@@ -86,4 +98,5 @@ services:
 volumes:
   prometheus-data:
   tempo-data:
+  loki-data:
   grafana-data:

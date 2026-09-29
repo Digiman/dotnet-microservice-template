@@ -20,12 +20,27 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 
-    // forward the logs to the Aspire dashboard when the app runs under the AppHost,
-    // which injects the OTLP endpoint of the dashboard into the process environment
+    // forward the logs over OTLP when an endpoint is configured - the Aspire AppHost
+    // injects the dashboard endpoint, docker-compose points at the local collector
     var otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
     if (!string.IsNullOrWhiteSpace(otlpEndpoint))
     {
-        loggerConfiguration.WriteTo.OpenTelemetry(otlpEndpoint, OtlpProtocol.HttpProtobuf);
+        // the sink builds its own OTLP resource, so the service name must be given to it
+        // explicitly - resolved the same way as in ServiceDefaults (environment preferred)
+        // to keep every signal reported under one name
+        var telemetryConfig = context.Configuration.GetTelemetryConfiguration();
+        var serviceName = context.Configuration["OTEL_SERVICE_NAME"] is { Length: > 0 } injectedName
+            ? injectedName
+            : telemetryConfig?.ServiceName ?? "dotnet-servicename";
+
+        loggerConfiguration.WriteTo.OpenTelemetry(
+            otlpEndpoint,
+            OtlpProtocol.HttpProtobuf,
+            resourceAttributes: new Dictionary<string, object>
+            {
+                ["service.name"] = serviceName,
+                ["service.version"] = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
+            });
     }
 });
 

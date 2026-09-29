@@ -44,6 +44,29 @@
           "legendFormat": "{{service_name}} {{http_response_status_code}}"
         }
       ]
+    },
+    {
+      "type": "logs",
+      "title": "Logs",
+      "description": "Structured logs of every service, as received through OpenTelemetry",
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 10 },
+      "options": {
+        "sortOrder": "Descending",
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "range",
+          "expr": "{service_name=~\".+\"}"
+        }
+      ]
     }
   ]
 }

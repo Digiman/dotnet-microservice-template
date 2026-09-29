@@ -276,19 +276,21 @@ same API and Seq pair plus a full observability stack without Aspire (see
 When the service runs through `docker compose up --build`, its telemetry does not stop at the
 logs: the app exports every signal once to a local
 [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) (`docker/otel-collector`),
-which fans it out to three local backends:
+which fans it out to four local backends:
 
 | Service | Url | Role |
 | --- | --- | --- |
 | `grafana` | http://localhost:3000 | UI over the stored metrics and traces, with the official "ASP.NET Core" dashboards and a provisioned "Service overview" dashboard (no login for local development) |
 | `aspire-dashboard` | http://localhost:18888 | the same Aspire dashboard UI as under `aspire run`, receiving live logs, traces and metrics from the collector |
 | `prometheus` | http://localhost:9090 | metrics storage, scraped from the collector; the `service_name` label allows filtering per service |
+| `loki` | http://localhost:3100 | logs storage, pushed as OTLP by the collector; queryable from Grafana (LogQL) |
 | `tempo` | http://localhost:3200 | traces storage, queryable from Grafana (TraceQL) |
 
 Logs keep flowing to Seq (http://localhost:5341) exactly as before, and the collector also
-forwards them to the Aspire dashboard. The stack is configured entirely through files under
-`docker/` - collector pipeline, Prometheus scrape config, Tempo storage and Grafana
-provisioning (datasources + dashboards). The Grafana dashboards are the
+stores them in Loki and forwards them to the Aspire dashboard. The stack is configured
+entirely through files under `docker/` - collector pipeline, Prometheus scrape config, Tempo
+and Loki storage and Grafana provisioning (datasources + dashboards). The Grafana dashboards
+are the
 [official ASP.NET Core ones](https://grafana.com/grafana/dashboards/19924-asp-net-core/)
 ("ASP.NET Core" + "ASP.NET Core Endpoint", vendored from the
 [aspire repo](https://github.com/dotnet/aspire) as the source is not directly downloadable in
