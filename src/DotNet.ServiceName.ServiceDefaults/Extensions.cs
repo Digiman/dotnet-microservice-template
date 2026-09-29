@@ -71,9 +71,17 @@ public static class Extensions
             return builder;
         }
 
+        // Aspire injects OTEL_SERVICE_NAME with the resource name of the service, so the
+        // dashboard groups the telemetry under the same name as the resource that emitted
+        // it - prefer it over the configured name. A standalone run (no AppHost) keeps the
+        // name from TelemetryOptions.
+        var serviceName = builder.Configuration["OTEL_SERVICE_NAME"] is { Length: > 0 } injectedName
+            ? injectedName
+            : telemetryConfig.ServiceName;
+
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(
-                serviceName: telemetryConfig.ServiceName,
+                serviceName: serviceName,
                 serviceVersion: typeof(Extensions).Assembly.GetName().Version?.ToString()))
             .WithMetrics(metrics =>
             {
