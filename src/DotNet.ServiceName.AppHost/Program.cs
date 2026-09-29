@@ -12,15 +12,18 @@ var builder = DistributedApplication.CreateBuilder(args);
 //
 // - the host port is pinned to 5341, so the sink url "http://localhost:5341" keeps working
 //   without per-run changes (Aspire would otherwise assign a random port)
-// - the image tag is pinned to the latest published build on Docker Hub: the integration
-//   ships with an older default (2025.2), and a floating "latest" tag would silently reuse
-//   whatever image is in the local docker cache - bump the tag when a new Seq release ships
+// - the image follows the latest published Seq release - the integration ships with an older
+//   default (2025.2). Note that docker reuses cached images: run
+//   `docker pull datalust/seq:latest` to bring the local copy up to date
 // - ACCEPT_EULA=Y is required, Seq refuses to start without it
-// - the persistent lifetime keeps the log data across AppHost restarts
+// - SEQ_FIRSTRUN_NOAUTHENTICATION skips the first-run admin setup, matching docker-compose
+// - the session lifetime recreates the container on every AppHost run, so each run starts
+//   with an empty log store instead of accumulating state on disk
 var seq = builder.AddSeq("seq", port: 5341)
-    .WithImageTag("2026.1.17182")
+    .WithImageTag("latest")
     .WithEnvironment("ACCEPT_EULA", "Y")
-    .WithLifetime(ContainerLifetime.Persistent)
+    .WithEnvironment("SEQ_FIRSTRUN_NOAUTHENTICATION", "true")
+    .WithLifetime(ContainerLifetime.Session)
     .ExcludeFromManifest();
 
 // The API project runs with its "aspire" launch profile (Local environment, so the Local

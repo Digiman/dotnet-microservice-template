@@ -407,11 +407,11 @@ public static class ServiceCollectionExtensions
             var httpsEndpoint = uris.FirstOrDefault(uri => uri.Scheme == "https");
 
             string fullUrl = url;
-            if (httpEndpoint != null) // Create an HTTP healthcheck endpoint
+            if (httpEndpoint != null) // Create an HTTP health check endpoint
             {
                 fullUrl = new UriBuilder(httpEndpoint.Scheme, httpEndpoint.Host, httpEndpoint.Port, url).ToString();
             }
-            else if (httpsEndpoint != null) // Create an HTTPS healthcheck endpoint
+            else if (httpsEndpoint != null) // Create an HTTPS health check endpoint
             {
                 fullUrl = new UriBuilder(httpsEndpoint.Scheme, httpsEndpoint.Host, httpsEndpoint.Port, url).ToString();
             }
@@ -431,7 +431,7 @@ public static class ServiceCollectionExtensions
     private static IHealthChecksBuilder AddHealthChecksConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         var builder = services.AddHealthChecks()
-            .AddMemoryHealthCheck(HealthStatus.Degraded, new[] { "internal", "monitoring" });
+            .AddMemoryHealthCheck(HealthStatus.Degraded, ["internal", "monitoring"]);
 
         return builder;
     }
