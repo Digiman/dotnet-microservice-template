@@ -289,12 +289,17 @@ which fans it out to four local backends:
 Logs keep flowing to Seq (http://localhost:5341) exactly as before, and the collector also
 stores them in Loki and forwards them to the Aspire dashboard. The stack is configured
 entirely through files under `docker/` - collector pipeline, Prometheus scrape config, Tempo
-and Loki storage and Grafana provisioning (datasources + dashboards). The Grafana dashboards
-are the
-[official ASP.NET Core ones](https://grafana.com/grafana/dashboards/19924-asp-net-core/)
-("ASP.NET Core" + "ASP.NET Core Endpoint", vendored from the
-[aspire repo](https://github.com/dotnet/aspire) as the source is not directly downloadable in
-some regions) plus a small template-specific "Service overview".
+and Loki storage and Grafana provisioning (datasources + dashboards).
+
+Grafana is provisioned with five dashboards. Four come from the community, vendored into the
+repo because grafana.com downloads are geo-blocked in some regions: the official
+["ASP.NET Core" and "ASP.NET Core Endpoint"](https://grafana.com/grafana/dashboards/19924-asp-net-core/)
+(from the [aspire repo](https://github.com/dotnet/aspire)), the runtime-focused
+["ASP.NET OTEL Metrics"](https://grafana.com/grafana/dashboards/17706/) (CPU, memory, GC,
+thread pool), and the ["ASP.NET Core | System overview"](https://grafana.com/grafana/dashboards/19194/)
+- the latter originally queries prometheus-net / EventCounters metrics and was adapted to the
+OpenTelemetry metric names this stack emits (endpoints instead of controllers). The fifth is
+a small template-specific "Service overview".
 
 ## Running behind a proxy / load balancer
 
