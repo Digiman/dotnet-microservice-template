@@ -1,18 +1,47 @@
 using DotNet.ServiceName.Api.Infrastructure.Extensions;
 using DotNet.ServiceName.Common.Extensions;
+using DotNet.ServiceName.ServiceDefaults;
 using Facet.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder();
+
+// add the shared service defaults - OpenTelemetry, service discovery and
+// HttpClient resilience (see DotNet.ServiceName.ServiceDefaults)
+builder.AddServiceDefaults();
 
 // configure Serilog for logging
 builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+
+    // forward the logs over OTLP when an endpoint is configured - the Aspire AppHost
+    // injects the dashboard endpoint, docker-compose points at the local collector
+    var otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+    if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+    {
+        // the sink builds its own OTLP resource, so the service name must be given to it
+        // explicitly - resolved the same way as in ServiceDefaults (environment preferred)
+        // to keep every signal reported under one name
+        var telemetryConfig = context.Configuration.GetTelemetryConfiguration();
+        var serviceName = context.Configuration["OTEL_SERVICE_NAME"] is { Length: > 0 } injectedName
+            ? injectedName
+            : telemetryConfig?.ServiceName ?? "dotnet-servicename";
+
+        loggerConfiguration.WriteTo.OpenTelemetry(
+            otlpEndpoint,
+            OtlpProtocol.HttpProtobuf,
+            resourceAttributes: new Dictionary<string, object>
+            {
+                ["service.name"] = serviceName,
+                ["service.version"] = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
+            });
+    }
 });
 
 // configure application services
@@ -98,6 +127,4 @@ void ConfigureApplication(WebApplication appBuilder, IWebHostEnvironment env)
 /// <summary>
 /// Marker class to expose the entry point for integration tests (WebApplicationFactory&lt;Program&gt;).
 /// </summary>
-public partial class Program
-{
-}
+public partial class Program;

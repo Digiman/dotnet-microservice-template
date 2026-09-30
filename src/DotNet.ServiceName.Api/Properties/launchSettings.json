@@ -19,6 +19,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Docker"
       }
+    },
+    "aspire": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      }
     }
   }
 }

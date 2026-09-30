@@ -16,9 +16,11 @@ Docker setup for local development.
 
 ```
 src/
-  DotNet.ServiceName.Api/          # Web API host: controllers, Razor home page, middleware, Swagger/Scalar, auth
-  DotNet.ServiceName.Application/  # Business logic, DTOs/facets, service registrations
-  DotNet.ServiceName.Common/       # Shared configuration options and extension helpers
+  DotNet.ServiceName.Api/              # Web API host: controllers, Razor home page, middleware, Swagger/Scalar, auth
+  DotNet.ServiceName.Application/      # Business logic, DTOs/facets, service registrations
+  DotNet.ServiceName.Common/           # Shared configuration options and extension helpers
+  DotNet.ServiceName.AppHost/          # Aspire AppHost: local orchestration of the API and Seq (aspire run)
+  DotNet.ServiceName.ServiceDefaults/  # Aspire service defaults: OpenTelemetry, service discovery, HttpClient resilience
 tests/
   DotNet.ServiceName.Application.Tests/  # xUnit unit tests (services, mappings, DI)
   DotNet.ServiceName.Api.Tests/          # xUnit integration tests (WebApplicationFactory)
@@ -32,6 +34,7 @@ namespaces, and the `Constants.ApiName` value when using the template.
 Application developed and used next technologies (on the backend) and components:
 
 * .NET 10 (LTS) - see [`global.json`](global.json) for the pinned SDK version
+* [.NET Aspire](https://aspire.dev/) for local orchestration (AppHost + service defaults)
 * API Key authentication (custom handler) with Swagger UI / Scalar integration
 * [Serilog](https://github.com/serilog/serilog) for logging
 * [OpenTelemetry](https://opentelemetry.io/) for traces and metrics (OTLP export)
@@ -232,6 +235,72 @@ runtime metrics (GC, threads, memory). Set `ConsoleExporter` to `true` to print 
 locally without a collector. Every Serilog request entry also carries the `TraceId`, so logs
 can be correlated with the corresponding trace.
 
+The registration lives in the `DotNet.ServiceName.ServiceDefaults` project (see
+[Aspire](#aspire-local-orchestration)) - `Program.cs` only calls `builder.AddServiceDefaults()`.
+
+## Aspire (local orchestration)
+
+The template ships an Aspire [AppHost](https://aspire.dev/get-started/app-host/)
+(`DotNet.ServiceName.AppHost`) that orchestrates the API and a Seq container for local
+development, with the Aspire dashboard for structured logs, traces and metrics:
+
+```bash
+# install the Aspire CLI once (https://aspire.dev/get-started/install-cli/)
+curl -sSL https://aspire.dev/install.sh | bash
+
+# run the AppHost from the repository root
+aspire run --project src/DotNet.ServiceName.AppHost/DotNet.ServiceName.AppHost.csproj
+```
+
+The dashboard URL is printed by the CLI. What is wired:
+
+* the `seq` container is pinned to host port `5341`, so the Seq sink configured in
+  `appsettings.Local.json` keeps working unchanged, and the API waits for it to start
+* the AppHost injects the dashboard OTLP endpoint into the API process
+  (`OTEL_EXPORTER_OTLP_ENDPOINT`), so traces and metrics flow into the dashboard without any
+  configuration - the service defaults exporter already honors those environment variables
+* Serilog logs are forwarded to the same endpoint as OTLP logs while that variable is present
+
+The `DotNet.ServiceName.ServiceDefaults` project carries the cross-service plumbing every
+service of the solution gets: the OpenTelemetry registration driven by `TelemetryOptions`, a
+liveness health check, service discovery, and a standard resilience pipeline for outbound
+`HttpClient` calls. Unlike the stock Aspire service defaults it does not map its own health
+endpoints, because the template maps `/health`, `/health/live` and `/health/ready` itself.
+
+`docker-compose.yml` remains the standalone option (`docker compose up --build`) - it runs the
+same API and Seq pair plus a full observability stack without Aspire (see
+[Docker observability stack](#docker-observability-stack)).
+
+## Docker observability stack
+
+When the service runs through `docker compose up --build`, its telemetry does not stop at the
+logs: the app exports every signal once to a local
+[OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) (`docker/otel-collector`),
+which fans it out to four local backends:
+
+| Service | Url | Role |
+| --- | --- | --- |
+| `grafana` | http://localhost:3000 | UI over the stored metrics and traces, with the official "ASP.NET Core" dashboards and a provisioned "Service overview" dashboard (no login for local development) |
+| `aspire-dashboard` | http://localhost:18888 | the same Aspire dashboard UI as under `aspire run`, receiving live logs, traces and metrics from the collector |
+| `prometheus` | http://localhost:9090 | metrics storage, scraped from the collector; the `service_name` label allows filtering per service |
+| `loki` | http://localhost:3100 | logs storage, pushed as OTLP by the collector; queryable from Grafana (LogQL) |
+| `tempo` | http://localhost:3200 | traces storage, queryable from Grafana (TraceQL) |
+
+Logs keep flowing to Seq (http://localhost:5341) exactly as before, and the collector also
+stores them in Loki and forwards them to the Aspire dashboard. The stack is configured
+entirely through files under `docker/` - collector pipeline, Prometheus scrape config, Tempo
+and Loki storage and Grafana provisioning (datasources + dashboards).
+
+Grafana is provisioned with five dashboards. Four come from the community, vendored into the
+repo because grafana.com downloads are geo-blocked in some regions: the official
+["ASP.NET Core" and "ASP.NET Core Endpoint"](https://grafana.com/grafana/dashboards/19924-asp-net-core/)
+(from the [aspire repo](https://github.com/dotnet/aspire)), the runtime-focused
+["ASP.NET OTEL Metrics"](https://grafana.com/grafana/dashboards/17706/) (CPU, memory, GC,
+thread pool), and the ["ASP.NET Core | System overview"](https://grafana.com/grafana/dashboards/19194/)
+- the latter originally queries prometheus-net / EventCounters metrics and was adapted to the
+OpenTelemetry metric names this stack emits (endpoints instead of controllers). The fifth is
+a small template-specific "Service overview".
+
 ## Running behind a proxy / load balancer
 
 Forwarded headers are processed, but only a loopback proxy is trusted by default so clients
@@ -285,6 +354,11 @@ dotnet format DotNet.ServiceName.sln --verify-no-changes
 # build and run in Docker (container listens on port 8080 internally)
 docker compose up --build
 # then open http://localhost:5050/swagger/index.html or http://localhost:5050/scalar
+# observability: http://localhost:3000 (Grafana), http://localhost:18888 (Aspire dashboard),
+# http://localhost:9090 (Prometheus), http://localhost:3200 (Tempo), http://localhost:5341 (Seq)
+
+# run with Aspire orchestration (API + Seq + dashboard)
+aspire run --project src/DotNet.ServiceName.AppHost/DotNet.ServiceName.AppHost.csproj
 
 # call a secured endpoint (default local key)
 curl -H "X-API-Key: local-dev-api-key" http://localhost:5050/api/v1/values

@@ -12,6 +12,7 @@ COPY ["Directory.Packages.props", "./"]
 COPY ["src/DotNet.ServiceName.Api/DotNet.ServiceName.Api.csproj", "src/DotNet.ServiceName.Api/"]
 COPY ["src/DotNet.ServiceName.Application/DotNet.ServiceName.Application.csproj", "src/DotNet.ServiceName.Application/"]
 COPY ["src/DotNet.ServiceName.Common/DotNet.ServiceName.Common.csproj", "src/DotNet.ServiceName.Common/"]
+COPY ["src/DotNet.ServiceName.ServiceDefaults/DotNet.ServiceName.ServiceDefaults.csproj", "src/DotNet.ServiceName.ServiceDefaults/"]
 RUN dotnet restore "src/DotNet.ServiceName.Api/DotNet.ServiceName.Api.csproj"
 COPY . .
 WORKDIR "/src/src/DotNet.ServiceName.Api"

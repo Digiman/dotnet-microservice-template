@@ -22,15 +22,7 @@
         <PackageReference Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
-        <PackageReference Include="OpenTelemetry.Exporter.Console" />
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
         <PackageReference Include="Scalar.AspNetCore" />
-        <PackageReference Include="Swashbuckle.AspNetCore" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
         <PackageReference Include="Serilog" />
         <PackageReference Include="Serilog.AspNetCore" />
         <PackageReference Include="Serilog.Enrichers.Environment" />
@@ -39,11 +31,14 @@
         <PackageReference Include="Serilog.Settings.Configuration" />
         <PackageReference Include="Serilog.Sinks.Console" />
         <PackageReference Include="Serilog.Sinks.File" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
         <PackageReference Include="Serilog.Sinks.Seq" />
         <PackageReference Include="Serilog.Enrichers.ClientInfo" />
         <PackageReference Include="Serilog.Enrichers.CorrelationId" />
         <PackageReference Include="Serilog.Exceptions" />
         <PackageReference Include="Serilog.Expressions" />
+        <PackageReference Include="Swashbuckle.AspNetCore" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
     </ItemGroup>
 
     <ItemGroup>
@@ -64,6 +59,7 @@
     <ItemGroup>
         <ProjectReference Include="..\DotNet.ServiceName.Application\DotNet.ServiceName.Application.csproj" />
         <ProjectReference Include="..\DotNet.ServiceName.Common\DotNet.ServiceName.Common.csproj" />
+        <ProjectReference Include="..\DotNet.ServiceName.ServiceDefaults\DotNet.ServiceName.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>

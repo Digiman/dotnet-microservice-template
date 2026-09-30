@@ -1,0 +1,54 @@
+# OpenTelemetry Collector configuration for the docker-compose stack.
+#
+# The app exports every signal once to this collector (OTEL_EXPORTER_OTLP_ENDPOINT), which
+# fans it out to the local backends: traces to Tempo, logs to Loki, metrics to Prometheus
+# (scraped from the prometheus exporter below) and all signals to the Aspire dashboard.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  # traces
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # the same dashboard UI as under `aspire run`, fed by the collector
+  otlp/aspire-dashboard:
+    endpoint: aspire-dashboard:18889
+    tls:
+      insecure: true
+
+  # logs - pushed as OTLP to Loki's native OTLP endpoint
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+
+  # metrics - scraped by Prometheus; the conversion turns the service.name resource
+  # attribute into a metric label, so Grafana can filter by service
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo, otlp/aspire-dashboard]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, otlp/aspire-dashboard]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/loki, otlp/aspire-dashboard]
