@@ -298,7 +298,7 @@ logs: the app exports every signal once to a local
 [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) (`docker/otel-collector`),
 which fans it out to four local backends:
 
-| Service | Url | Role |
+| Service | URL | Role |
 | --- | --- | --- |
 | `grafana` | http://localhost:3000 | UI over the stored metrics and traces, with the official "ASP.NET Core" dashboards and a provisioned "Service overview" dashboard (no login for local development) |
 | `aspire-dashboard` | http://localhost:18888 | the same Aspire dashboard UI as under `aspire run`, receiving live logs, traces and metrics from the collector |
@@ -312,9 +312,9 @@ entirely through files under `docker/` - collector pipeline, Prometheus scrape c
 and Loki storage and Grafana provisioning (datasources + dashboards).
 
 Grafana is provisioned with five dashboards. Four come from the community, vendored into the
-repo because grafana.com downloads are geo-blocked in some regions: the official
+repository because grafana.com downloads are geo-blocked in some regions: the official
 ["ASP.NET Core" and "ASP.NET Core Endpoint"](https://grafana.com/grafana/dashboards/19924-asp-net-core/)
-(from the [aspire repo](https://github.com/dotnet/aspire)), the runtime-focused
+(from the [aspire repository](https://github.com/dotnet/aspire)), the runtime-focused
 ["ASP.NET OTEL Metrics"](https://grafana.com/grafana/dashboards/17706/) (CPU, memory, GC,
 thread pool), and the ["ASP.NET Core | System overview"](https://grafana.com/grafana/dashboards/19194/)
 - the latter originally queries prometheus-net / EventCounters metrics and was adapted to the
