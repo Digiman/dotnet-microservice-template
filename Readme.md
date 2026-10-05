@@ -9,8 +9,9 @@
 This repository is a template for a .NET microservice. It contains a single Web API project
 (`DotNet.ServiceName.Api`) with a layered structure (Application, Common), API versioning,
 API Key authentication, Swagger/OpenAPI documentation, structured logging, health checks with
-a dashboard, CORS, rate limiting, request timeouts, OpenTelemetry traces and metrics, and a
-Docker setup for local development.
+a dashboard, CORS, rate limiting, request timeouts, OpenTelemetry traces and metrics, and two
+local run modes: .NET Aspire orchestration and a Docker setup with a full observability stack
+(Grafana, Prometheus, Tempo, Loki and the Aspire dashboard).
 
 ### Project structure
 
@@ -29,12 +30,31 @@ tests/
 Rename `DotNet.ServiceName` to your service name across the solution, project folders,
 namespaces, and the `Constants.ApiName` value when using the template.
 
+## Architecture
+
+The template's runtime story is one OTLP export: the API emits logs, traces and metrics
+once, and the tooling around it differs only in where that export lands. Seq additionally
+receives structured logs through its dedicated sink.
+
+![Runtime topology of the service template](docs/diagrams/runtime-topology.png)
+
+- **`aspire run`** - the Aspire AppHost wires the export to its dashboard and to Seq; see
+  [Aspire (local orchestration)](#aspire-local-orchestration).
+- **`docker compose up`** - a local OpenTelemetry Collector fans the signals out to
+  Prometheus, Tempo, Loki and an Aspire dashboard container, with Grafana as the UI on top;
+  see [Docker observability stack](#docker-observability-stack).
+
+The diagram is editable in
+[`docs/diagrams/runtime-topology.html`](docs/diagrams/runtime-topology.html) - regenerate
+`runtime-topology.png` from it when the topology changes.
+
 ## Tech stack
 
 Application developed and used next technologies (on the backend) and components:
 
 * .NET 10 (LTS) - see [`global.json`](global.json) for the pinned SDK version
 * [.NET Aspire](https://aspire.dev/) for local orchestration (AppHost + service defaults)
+* Docker observability stack: [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), [Grafana](https://grafana.com/oss/grafana/), [Prometheus](https://prometheus.io/), [Tempo](https://grafana.com/oss/tempo/), [Loki](https://grafana.com/oss/loki/)
 * API Key authentication (custom handler) with Swagger UI / Scalar integration
 * [Serilog](https://github.com/serilog/serilog) for logging
 * [OpenTelemetry](https://opentelemetry.io/) for traces and metrics (OTLP export)
