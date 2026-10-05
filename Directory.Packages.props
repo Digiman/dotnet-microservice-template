@@ -6,8 +6,8 @@
   <ItemGroup>
     <PackageVersion Include="Asp.Versioning.Mvc" Version="10.2.1" />
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.5.4" />
-    <PackageVersion Include="Aspire.Hosting.Seq" Version="13.5.4" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.6.0" />
+    <PackageVersion Include="Aspire.Hosting.Seq" Version="13.6.0" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="DotNetDiag.HealthChecks.UI" Version="10.0.14" />
     <PackageVersion Include="DotNetDiag.HealthChecks.UI.Client" Version="10.0.14" />
