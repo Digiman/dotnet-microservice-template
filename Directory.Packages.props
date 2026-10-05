@@ -9,12 +9,12 @@
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.6.0" />
     <PackageVersion Include="Aspire.Hosting.Seq" Version="13.6.0" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
-    <PackageVersion Include="DotNetDiag.HealthChecks.UI" Version="10.0.14" />
-    <PackageVersion Include="DotNetDiag.HealthChecks.UI.Client" Version="10.0.14" />
-    <PackageVersion Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" Version="10.0.14" />
-    <PackageVersion Include="Facet" Version="6.6.12" />
-    <PackageVersion Include="Facet.Dashboard" Version="6.6.12" />
-    <PackageVersion Include="Facet.Extensions" Version="6.6.12" />
+    <PackageVersion Include="DotNetDiag.HealthChecks.UI" Version="10.0.16" />
+    <PackageVersion Include="DotNetDiag.HealthChecks.UI.Client" Version="10.0.16" />
+    <PackageVersion Include="DotNetDiag.HealthChecks.UI.InMemory.Storage" Version="10.0.16" />
+    <PackageVersion Include="Facet" Version="6.6.13" />
+    <PackageVersion Include="Facet.Dashboard" Version="6.6.13" />
+    <PackageVersion Include="Facet.Extensions" Version="6.6.13" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
@@ -37,7 +37,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.10" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.13" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Enrichers.ClientInfo" Version="2.9.0" />
