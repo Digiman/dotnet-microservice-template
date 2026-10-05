@@ -1,0 +1,11 @@
+# Dashboards Grafana gets provisioned with on startup (the JSON files next to
+# this file are loaded from the same folder).
+apiVersion: 1
+
+providers:
+  - name: Service dashboards
+    type: file
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

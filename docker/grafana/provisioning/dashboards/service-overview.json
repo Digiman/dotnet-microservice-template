@@ -1,0 +1,72 @@
+{
+  "title": "Service overview",
+  "uid": "service-overview",
+  "tags": ["dotnet", "opentelemetry"],
+  "schemaVersion": 41,
+  "editable": true,
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Request rate by route",
+      "description": "Incoming requests per second, grouped by route (http.server.request.duration)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_request_duration_seconds_count[$__rate_interval])) by (service_name, http_route)",
+          "legendFormat": "{{service_name}} {{http_route}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Request duration p95",
+      "description": "95th percentile of the http.server.request.duration histogram",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[$__rate_interval])) by (le, service_name, http_route))",
+          "legendFormat": "{{service_name}} {{http_route}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Responses by status code",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_request_duration_seconds_count[$__rate_interval])) by (service_name, http_response_status_code)",
+          "legendFormat": "{{service_name}} {{http_response_status_code}}"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "Logs",
+      "description": "Structured logs of every service, as received through OpenTelemetry",
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 10 },
+      "options": {
+        "sortOrder": "Descending",
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "range",
+          "expr": "{service_name=~\".+\"}"
+        }
+      ]
+    }
+  ]
+}
